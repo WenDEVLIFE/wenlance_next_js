@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
+import { Plus } from "lucide-react";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { AnimatedDialog } from "@/components/AnimatedDialog";
 import { AnimatedDialogWrapper } from "@/components/AnimatedDialogWrapper";
+import { AnimatedFAB } from "@/components/AnimatedFAB";
 
 export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -115,6 +117,17 @@ export default function Home() {
           </a>
         </div>
       </main>
+
+      <div className="fixed bottom-8 right-8 z-50">
+        <AnimatedFAB 
+          onPressed={() => setIsDialogOpen(true)}
+          tooltip="Open Dialog"
+          backgroundColor="#000"
+          className="dark:bg-white dark:text-black"
+        >
+          <Plus size={24} />
+        </AnimatedFAB>
+      </div>
     </div>
   );
 }
