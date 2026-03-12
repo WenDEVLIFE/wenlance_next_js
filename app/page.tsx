@@ -10,6 +10,7 @@ import { AnimatedDialogWrapper } from "@/components/AnimatedDialogWrapper";
 import { AnimatedFAB } from "@/components/AnimatedFAB";
 import { AnimatedListItem } from "@/components/AnimatedListItem";
 import { CustomBottomNavigation } from "@/components/CustomBottomNavigation";
+import { CustomButton } from "@/components/CustomButton";
 
 export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -113,6 +114,19 @@ export default function Home() {
                 </div>
               </AnimatedListItem>
             ))}
+          </div>
+
+          <div className="w-full mt-8 space-y-4">
+            <h2 className="text-xl font-bold mb-4 text-black dark:text-zinc-50">Custom Primary Button</h2>
+            <CustomButton 
+              label="Primary Action Button" 
+              onClick={() => alert('Button Clicked!')} 
+            />
+            <CustomButton 
+              label="Secondary Styled Button" 
+              className="bg-zinc-800 hover:bg-zinc-900 border border-zinc-700"
+              onClick={() => console.log('Secondary clicked')} 
+            />
           </div>
         </div>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
