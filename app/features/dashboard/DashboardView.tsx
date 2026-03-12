@@ -20,42 +20,30 @@ import { MonthlySalaryLineChart } from "@/components/MonthlySalaryLineChart";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PageTransition } from "@/components/PageTransition";
 import { AppColors } from "@/lib/utils/colors";
+import { DashboardStats, enrichDashboardStats } from "../../model/DashboardStats";
 
-// Interfaces based on Flutter version
-export interface DashboardStats {
-  thisMonthSalesIncome: number;
-  thisMonthSalaryPercentageChange: number;
-  thisMonthExpenses: number;
-  thisMonthExpensesPercentageChange: number;
-  totalExpenses: number;
-  totalExpensesPercentageChange: number;
-  totalProjects: number;
-  totalProjectsPercentageChange: number;
-  totalSalesIncome: number;
-  totalSalary: number; // For current year
-  totalSalaryPercentageChange: number;
-  lastYearSalary: number;
-  lastYearSalaryPercentageChange: number;
-}
 
 const mockStats: DashboardStats = {
-  thisMonthSalesIncome: 45000,
-  thisMonthSalaryPercentageChange: 12.5,
+  thisMonthSalary: 45000,
   thisMonthExpenses: 12000,
-  thisMonthExpensesPercentageChange: -5.2,
   totalExpenses: 85000,
-  totalExpensesPercentageChange: 8.3,
   totalProjects: 24,
-  totalProjectsPercentageChange: 2,
-  totalSalesIncome: 350000,
   totalSalary: 350000,
-  totalSalaryPercentageChange: 15.7,
   lastYearSalary: 280000,
-  lastYearSalaryPercentageChange: 10.2,
+  totalSalesIncome: 350000,
+  thisMonthSalesIncome: 45000,
+  
+  lastMonthSalary: 40000,
+  lastMonthExpenses: 12658,
+  previousTotalExpenses: 78485,
+  previousTotalProjects: 22,
+  previousTotalSalary: 302500,
+  yearBeforeLastSalary: 254000,
 };
 
 export default function DashboardPage() {
-  const [stats] = useState<DashboardStats>(mockStats);
+  const enrichedStats = useMemo(() => enrichDashboardStats(mockStats), []);
+  const [stats] = useState(enrichedStats);
   const [isLoading] = useState(false);
   const [error] = useState<string | null>(null);
 
@@ -108,8 +96,8 @@ export default function DashboardPage() {
             <StatCard
               index={0}
               title="This Month Salary"
-              value={formatCurrency(stats.thisMonthSalesIncome)}
-              percentage={stats.thisMonthSalaryPercentageChange}
+              value={formatCurrency(stats.thisMonthSalary)}
+              percentage={stats.thisMonthSalaryPercentageChange ?? 0}
               icon={<Landmark size={24} />}
               color="#10B981"
             />
@@ -117,7 +105,7 @@ export default function DashboardPage() {
               index={1}
               title="This Month Expenses"
               value={formatCurrency(stats.thisMonthExpenses)}
-              percentage={stats.thisMonthExpensesPercentageChange}
+              percentage={stats.thisMonthExpensesPercentageChange ?? 0}
               icon={<Wallet size={24} />}
               color="#EF4444"
             />
@@ -125,7 +113,7 @@ export default function DashboardPage() {
               index={2}
               title="Total Expenses"
               value={formatCurrency(stats.totalExpenses)}
-              percentage={stats.totalExpensesPercentageChange}
+              percentage={stats.totalExpensesPercentageChange ?? 0}
               icon={<ArrowDownCircle size={24} />}
               color="#F59E0B"
             />
@@ -133,7 +121,7 @@ export default function DashboardPage() {
               index={3}
               title="Total Projects"
               value={stats.totalProjects.toString()}
-              percentage={stats.totalProjectsPercentageChange}
+              percentage={stats.totalProjectsPercentageChange ?? 0}
               icon={<Briefcase size={24} />}
               color={AppColors.primary}
             />
@@ -141,7 +129,7 @@ export default function DashboardPage() {
               index={4}
               title="Total Sales Income"
               value={formatCurrency(stats.totalSalesIncome)}
-              percentage={stats.totalSalaryPercentageChange}
+              percentage={stats.totalSalaryPercentageChange ?? 0}
               icon={<TrendingUp size={24} />}
               color="#10B981"
             />
@@ -149,7 +137,7 @@ export default function DashboardPage() {
               index={5}
               title={`This Year Sales (${new Date().getFullYear()})`}
               value={formatCurrency(stats.totalSalary)}
-              percentage={stats.totalSalaryPercentageChange}
+              percentage={stats.totalSalaryPercentageChange ?? 0}
               icon={<Banknote size={24} />}
               color={AppColors.info}
             />
@@ -157,7 +145,7 @@ export default function DashboardPage() {
               index={6}
               title={`Last Year Sales (${new Date().getFullYear() - 1})`}
               value={formatCurrency(stats.lastYearSalary)}
-              percentage={stats.lastYearSalaryPercentageChange}
+              percentage={stats.lastYearSalaryPercentageChange ?? 0}
               icon={<Calendar size={24} />}
               color={AppColors.secondary}
             />

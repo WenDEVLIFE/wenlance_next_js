@@ -40,7 +40,7 @@ export const CustomBottomNavigation: React.FC<CustomBottomNavigationProps> = ({
   className = '',
 }) => {
   return (
-    <nav className={`fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)] pb-safe ${className}`}>
+    <nav className={`fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-zinc-200 dark:border-zinc-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)] pb-safe ${className}`}>
       <div className="mx-auto flex h-20 items-center justify-around px-2 max-w-screen-md">
         {navItems.map((item) => {
           const isSelected = currentIndex === item.index;
