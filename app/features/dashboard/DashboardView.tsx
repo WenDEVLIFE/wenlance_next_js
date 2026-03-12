@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Landmark,
   Wallet,
@@ -20,32 +20,39 @@ import { MonthlySalaryLineChart } from "@/components/MonthlySalaryLineChart";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PageTransition } from "@/components/PageTransition";
 import { AppColors } from "@/lib/utils/colors";
-import { DashboardStats, enrichDashboardStats } from "../../model/DashboardStats";
+import { DashboardStats, EnrichedDashboardStats, enrichDashboardStats, calculateDashboardStats, getMonthlySalaryData } from "../../model/DashboardStats";
+import { dashboardRepository, DashboardData } from "@/lib/repositories/DashboardRepository";
+import { auth } from "@/lib/utils/firebase";
+import { MonthlySaleModel } from "@/components/MonthlySalaryLineChart";
 
-
-const mockStats: DashboardStats = {
-  thisMonthSalary: 45000,
-  thisMonthExpenses: 12000,
-  totalExpenses: 85000,
-  totalProjects: 24,
-  totalSalary: 350000,
-  lastYearSalary: 280000,
-  totalSalesIncome: 350000,
-  thisMonthSalesIncome: 45000,
-  
-  lastMonthSalary: 40000,
-  lastMonthExpenses: 12658,
-  previousTotalExpenses: 78485,
-  previousTotalProjects: 22,
-  previousTotalSalary: 302500,
-  yearBeforeLastSalary: 254000,
-};
 
 export default function DashboardPage() {
-  const enrichedStats = useMemo(() => enrichDashboardStats(mockStats), []);
-  const [stats] = useState(enrichedStats);
-  const [isLoading] = useState(false);
+  const [stats, setStats] = useState<EnrichedDashboardStats | null>(null);
+  const [data, setData] = useState<DashboardData>({ expenses: [], sales: [], projects: [], savings: [], utilizations: [] });
+  const [isLoading, setIsLoading] = useState(true);
   const [error] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log("Dashboard Monitoring Started");
+    console.log("Current Auth User:", auth.currentUser?.uid || "Not logged in");
+
+    const unsubscribe = dashboardRepository.listenToDashboard((liveData) => {
+      console.log("--- Dashboard Sync ---");
+      console.log("User ID:", auth.currentUser?.uid);
+      console.log("Expenses:", liveData.expenses.length);
+      console.log("Sales:", liveData.sales.length);
+      console.log("Projects:", liveData.projects.length);
+      console.log("Savings:", liveData.savings.length);
+      console.log("Data Content Sample (Projects):", liveData.projects.slice(0, 1));
+      
+      setData(liveData);
+      const rawStats = calculateDashboardStats(liveData);
+      setStats(enrichDashboardStats(rawStats));
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-PH', {
@@ -68,6 +75,14 @@ export default function DashboardPage() {
         <AlertCircle size={64} className="text-red-500 mb-4" />
         <h2 className="text-2xl font-bold mb-2">Error loading dashboard</h2>
         <p className="text-zinc-500 max-w-md">{error}</p>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-soft-gradient dark:bg-zinc-950">
+        <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -149,24 +164,41 @@ export default function DashboardPage() {
               icon={<Calendar size={24} />}
               color={AppColors.secondary}
             />
+            <StatCard
+              index={7}
+              title="Total Savings"
+              value={formatCurrency(stats.totalSavings ?? 0)}
+              percentage={stats.totalSavingsPercentageChange ?? 0}
+              icon={<TrendingUp size={24} />}
+              color="#3b82f6"
+            />
           </div>
 
           {/* Charts Section */}
           <div className="space-y-8 pb-12">
-            <AnimatedListItem index={6}>
+            <AnimatedListItem index={8}>
               <FinancialPieChart
                 stats={{
                   totalSalesIncome: stats.totalSalesIncome,
                   totalExpenses: stats.totalExpenses
-                }} expenses={[]} />
+                }} 
+                expenses={data.expenses.map(e => ({
+                  category: e.category,
+                  amount: e.amount,
+                  label: e.title
+                }))} 
+              />
             </AnimatedListItem>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <AnimatedListItem index={7}>
-                <SalaryLineChart sales={[]} />
+                <SalaryLineChart sales={data.sales.map(s => ({
+                  dateReceived: s.dateReceived,
+                  amount: s.amount
+                }))} />
               </AnimatedListItem>
-              <AnimatedListItem index={8}>
-                <MonthlySalaryLineChart />
+              <AnimatedListItem index={10}>
+                <MonthlySalaryLineChart data={getMonthlySalaryData(data.sales)} />
               </AnimatedListItem>
             </div>
           </div>
