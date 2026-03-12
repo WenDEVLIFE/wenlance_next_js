@@ -1,7 +1,13 @@
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
 import { AnimatedCard } from "@/components/AnimatedCard";
+import { AnimatedDialog } from "@/components/AnimatedDialog";
 
 export default function Home() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
@@ -15,8 +21,33 @@ export default function Home() {
         />
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            Converted Flutter Component
+            Converted Flutter Components
           </h1>
+          
+          <div className="flex flex-wrap gap-4">
+            <button 
+              onClick={() => setIsDialogOpen(true)}
+              className="rounded-full bg-black px-6 py-2 text-white hover:bg-zinc-800 transition-colors dark:bg-white dark:text-black dark:hover:bg-zinc-200 font-medium"
+            >
+              Open Animated Dialog
+            </button>
+          </div>
+
+          <AnimatedDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+            <div className="p-8">
+              <h2 className="text-2xl font-bold mb-4">Hello from Flutter! 🚀</h2>
+              <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+                This dialog was converted from a Flutter `AnimatedDialog`. It uses a scale and fade animation for a smooth entry.
+              </p>
+              <button 
+                onClick={() => setIsDialogOpen(false)}
+                className="w-full rounded-xl bg-zinc-100 py-3 text-zinc-900 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700 font-semibold"
+              >
+                Close Dialog
+              </button>
+            </div>
+          </AnimatedDialog>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
             <AnimatedCard className="p-6 border border-zinc-200 dark:border-zinc-800">
               <h2 className="font-bold mb-2">Default Animated Card</h2>
