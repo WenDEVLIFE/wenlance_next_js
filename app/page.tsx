@@ -11,11 +11,14 @@ import { AnimatedFAB } from "@/components/AnimatedFAB";
 import { AnimatedListItem } from "@/components/AnimatedListItem";
 import { CustomBottomNavigation } from "@/components/CustomBottomNavigation";
 import { CustomButton } from "@/components/CustomButton";
+import { CustomTextField } from "@/components/CustomTextField";
 
 export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showWrapper, setShowWrapper] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -126,6 +129,33 @@ export default function Home() {
               label="Secondary Styled Button" 
               className="bg-zinc-800 hover:bg-zinc-900 border border-zinc-700"
               onClick={() => console.log('Secondary clicked')} 
+            />
+          </div>
+
+          <div className="w-full mt-12 space-y-6">
+            <h2 className="text-xl font-bold mb-4 text-black dark:text-zinc-50">Custom Text Fields</h2>
+            
+            <CustomTextField 
+              label="Email Address"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              prefixIcon={<LayoutDashboard size={18} />}
+            />
+
+            <CustomTextField 
+              label="Password"
+              placeholder="Enter your password"
+              isPassword
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              hint="Must be at least 8 characters long"
+            />
+
+            <CustomTextField 
+              label="Error State"
+              placeholder="Invalid input"
+              error="This field is required"
             />
           </div>
         </div>
