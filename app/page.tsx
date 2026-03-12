@@ -9,10 +9,12 @@ import { AnimatedDialog } from "@/components/AnimatedDialog";
 import { AnimatedDialogWrapper } from "@/components/AnimatedDialogWrapper";
 import { AnimatedFAB } from "@/components/AnimatedFAB";
 import { AnimatedListItem } from "@/components/AnimatedListItem";
+import { CustomBottomNavigation } from "@/components/CustomBottomNavigation";
 
 export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showWrapper, setShowWrapper] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -150,6 +152,11 @@ export default function Home() {
           <Plus size={24} />
         </AnimatedFAB>
       </div>
+
+      <CustomBottomNavigation 
+        currentIndex={activeTab} 
+        onTap={(index) => setActiveTab(index)} 
+      />
     </div>
   );
 }
