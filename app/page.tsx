@@ -15,6 +15,7 @@ import { CustomTextField } from "@/components/CustomTextField";
 import { FinancialPieChart, ExpenseModel, DashboardStats } from "@/components/FinancialPieChart";
 import { PageTransition } from "@/components/PageTransition";
 import { SalaryLineChart, SaleModel } from "@/components/SalaryLineChart";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -56,9 +57,12 @@ export default function Home() {
             priority
           />
           <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-            <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-              Converted Flutter Components
-            </h1>
+            <div className="flex w-full items-center justify-between">
+              <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
+                Converted Flutter Components
+              </h1>
+              <ThemeToggle iconSize={28} className="mr-8" />
+            </div>
 
             <div className="flex flex-wrap gap-4">
               <button
