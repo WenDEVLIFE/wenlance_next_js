@@ -50,7 +50,7 @@ export const MonthlySalaryLineChart: React.FC<MonthlySalaryLineChartProps> = ({ 
         <p className="text-sm transition-colors duration-500">Earnings breakdown per month</p>
       </div>
 
-      <ResponsiveContainer width="100%" height="80%">
+      <ResponsiveContainer width="100%" height="60%">
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id="monthGradient" x1="0" y1="0" x2="0" y2="1">
@@ -94,6 +94,34 @@ export const MonthlySalaryLineChart: React.FC<MonthlySalaryLineChartProps> = ({ 
           />
         </AreaChart>
       </ResponsiveContainer>
+
+      {/* Summary Row */}
+      <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-white/10 grid grid-cols-3 gap-4 text-center">
+        <div>
+          <p className="text-xl font-bold text-primary dark:text-[#60a5fa]">
+            {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 }).format(
+              chartData[new Date().getMonth()]?.amount || 0
+            )}
+          </p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">This Month</p>
+        </div>
+        <div>
+          <p className="text-xl font-bold text-primary dark:text-[#60a5fa]">
+            {chartData.some(d => d.amount > 0)
+              ? chartData.reduce((prev, current) => (prev.amount > current.amount) ? prev : current).month
+              : "N/A"}
+          </p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Best Month</p>
+        </div>
+        <div>
+          <p className="text-xl font-bold text-primary dark:text-[#60a5fa]">
+            {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 }).format(
+              chartData.reduce((acc, curr) => acc + curr.amount, 0) / (new Date().getMonth() + 1)
+            )}
+          </p>
+          <p className="text-xs text-zinc-300 dark:text-zinc-300 font-medium">Avg/Month</p>
+        </div>
+      </div>
     </motion.div>
   );
 };
