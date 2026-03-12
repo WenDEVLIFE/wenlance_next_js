@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { CustomBottomNavigation } from './CustomBottomNavigation';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { authRepository } from '@/lib/repositories/AuthRepository';
 
 interface NavigationWrapperProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ interface NavigationWrapperProps {
 export const NavigationWrapper: React.FC<NavigationWrapperProps> = ({ children }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const pathname = usePathname();
+  const router = useRouter();
 
   // Hide navigation on login page if needed
   const isLoginPage = pathname === '/login';
@@ -20,10 +22,24 @@ export const NavigationWrapper: React.FC<NavigationWrapperProps> = ({ children }
     return <>{children}</>;
   }
 
+  const handleLogout = async () => {
+    try {
+      await authRepository.logout();
+      router.replace('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   const handleNavTap = (index: number) => {
+    if (index === 6) { // Logout index
+      handleLogout();
+      return;
+    }
+    
     setCurrentIndex(index);
-    // In a real app, you would handle navigation here
-    // router.push(navItems[index].path);
+    // Navigation logic for other items could go here
+    // e.g., if (index === 2) router.push('/projects');
   };
 
   return (
