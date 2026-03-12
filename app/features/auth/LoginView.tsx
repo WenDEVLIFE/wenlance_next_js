@@ -5,10 +5,9 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Lock, Mail, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
-import { auth } from '@/lib/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { authRepository } from '@/lib/repositories/AuthRepository';
 
-import { AppColors } from '@/lib/colors';
+import { AppColors } from '@/lib/utils/colors';
 
 import { ShootingStars } from '@/components/ShootingStars';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
@@ -55,9 +54,8 @@ export const LoginView: React.FC = () => {
     setError(null);
 
     try {
-      // Simulation of Firebase Login (using actual SDK but with placeholder config)
-      // In a real scenario, this would work once valid config is provided
-      await signInWithEmailAndPassword(auth, email, password);
+      // Login using the repository
+      await authRepository.login(email, password);
 
       toast.success('Login successful!', {
         icon: <CheckCircle2 className="text-green-500" />,
