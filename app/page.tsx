@@ -2,11 +2,14 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { AnimatedCard } from "@/components/AnimatedCard";
 import { AnimatedDialog } from "@/components/AnimatedDialog";
+import { AnimatedDialogWrapper } from "@/components/AnimatedDialogWrapper";
 
 export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showWrapper, setShowWrapper] = useState(false);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -31,7 +34,24 @@ export default function Home() {
             >
               Open Animated Dialog
             </button>
+            <button 
+              onClick={() => setShowWrapper(!showWrapper)}
+              className="rounded-full border border-black/10 px-6 py-2 hover:bg-black/5 transition-colors dark:border-white/10 dark:hover:bg-white/5 font-medium"
+            >
+              Toggle Wrapper Animation
+            </button>
           </div>
+
+          <AnimatePresence mode="wait">
+            {showWrapper && (
+              <AnimatedDialogWrapper className="my-8 rounded-2xl bg-zinc-100 p-8 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
+                <h3 className="text-xl font-bold mb-2">Animated Wrapper</h3>
+                <p className="text-zinc-600 dark:text-zinc-400">
+                  This content is wrapped in `AnimatedDialogWrapper`. It uses the same scale and fade logic from the Flutter implementation.
+                </p>
+              </AnimatedDialogWrapper>
+            )}
+          </AnimatePresence>
 
           <AnimatedDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
             <div className="p-8">
