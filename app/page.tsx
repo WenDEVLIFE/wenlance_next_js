@@ -8,6 +8,7 @@ import { AnimatedCard } from "@/components/AnimatedCard";
 import { AnimatedDialog } from "@/components/AnimatedDialog";
 import { AnimatedDialogWrapper } from "@/components/AnimatedDialogWrapper";
 import { AnimatedFAB } from "@/components/AnimatedFAB";
+import { AnimatedListItem } from "@/components/AnimatedListItem";
 
 export default function Home() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -89,6 +90,27 @@ export default function Home() {
                 Greater scale effect (0.9) and click handler.
               </p>
             </AnimatedCard>
+          </div>
+
+          <div className="w-full space-y-3 mt-8">
+            <h2 className="text-xl font-bold mb-4 text-black dark:text-zinc-50">Staggered List Items</h2>
+            {[1, 2, 3, 4].map((item, i) => (
+              <AnimatedListItem 
+                key={item} 
+                index={i} 
+                className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold">
+                    {item}
+                  </div>
+                  <div>
+                    <div className="font-semibold">Item Title {item}</div>
+                    <div className="text-sm text-zinc-500">Staggered entrance animation</div>
+                  </div>
+                </div>
+              </AnimatedListItem>
+            ))}
           </div>
         </div>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
