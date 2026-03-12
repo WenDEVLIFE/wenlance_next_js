@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AnimatedCard } from "@/components/AnimatedCard";
 
 export default function Home() {
   return (
@@ -14,25 +15,28 @@ export default function Home() {
         />
         <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
           <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+            Converted Flutter Component
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+            <AnimatedCard className="p-6 border border-zinc-200 dark:border-zinc-800">
+              <h2 className="font-bold mb-2">Default Animated Card</h2>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Tap me to see the scale and shadow animation.
+              </p>
+            </AnimatedCard>
+
+            <AnimatedCard 
+              className="p-6 text-white" 
+              color="#3b82f6" 
+              scaleOnTap={0.9}
+              onClick={() => alert('Card clicked!')}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <h2 className="font-bold mb-2">Custom Blue Card</h2>
+              <p className="text-sm opacity-90">
+                Greater scale effect (0.9) and click handler.
+              </p>
+            </AnimatedCard>
+          </div>
         </div>
         <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
           <a
