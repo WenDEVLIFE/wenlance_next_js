@@ -23,12 +23,12 @@ export const ShootingStars: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden bg-[#0a0a0b]">
+    <div className="fixed inset-0 z-0 overflow-hidden bg-soft-gradient">
       {/* Static twinkling stars */}
       {stars.map((star) => (
         <motion.div
           key={star.id}
-          className="absolute rounded-full bg-white opacity-0"
+          className="absolute rounded-full opacity-0 dark:bg-white bg-blue-600/40"
           style={{
             left: `${star.x}%`,
             top: `${star.y}%`,
@@ -61,7 +61,7 @@ export const ShootingStars: React.FC = () => {
 const ShootingStar = ({ delay }: { delay: number }) => {
   return (
     <motion.div
-      className="absolute h-[2px] w-[100px] bg-gradient-to-r from-transparent via-blue-400 to-white"
+      className="absolute h-[2px] w-[100px] bg-gradient-to-r from-transparent via-blue-400 to-white dark:via-blue-300 dark:to-white"
       initial={{ top: "-10%", left: "110%", rotate: -45, opacity: 1 }}
       animate={{
         top: "110%",
