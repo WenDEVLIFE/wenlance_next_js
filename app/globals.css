@@ -26,7 +26,7 @@
   --color-warning: #F59E0B;
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -55,32 +55,9 @@
   --foreground: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-
-  /* Blue Palette */
-  --color-blue-900: #03045E;
-  --color-blue-800: #023E8A;
-  --color-blue-700: #0077B6;
-  --color-blue-600: #0096C7;
-  --color-blue-500: #00B4D8;
-  --color-blue-400: #48CAE4;
-  --color-blue-300: #90E0EF;
-  --color-blue-200: #ADE8F4;
-  --color-blue-100: #CAF0F8;
-
-  /* Semantic Colors */
-  --color-primary-brand: var(--blue-800);
-  --color-success-brand: #10B981;
-  --color-error-brand: #EF4444;
-}
-
 /* Custom background styles for theme awareness */
 .bg-soft-gradient {
-  background: linear-gradient(to bottom, #E0E7FF 0%, #FFFFFF 100%);
+  background: linear-gradient(to bottom, #CAF0F8 0%, #FFFFFF 100%);
   transition: background 0.5s ease-in-out;
 }
 

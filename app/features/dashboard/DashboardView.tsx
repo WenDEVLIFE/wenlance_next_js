@@ -91,10 +91,10 @@ export default function DashboardPage() {
           {/* Header */}
           <header className="flex flex-col sm:flex-row justify-between items-start gap-6 mb-12">
             <div className="space-y-2">
-              <h1 className="text-4xl font-bold text-zinc-900 dark:text-white transition-colors">
+              <h1 className="text-4xl font-bold transition-colors duration-500">
                 Dashboard
               </h1>
-              <p className="text-zinc-500 dark:text-zinc-400">
+              <p className="transition-colors duration-500">
                 Overview of your financial and project statistics
               </p>
             </div>
@@ -203,10 +203,37 @@ function StatCard({ index, title, value, percentage, icon, color }: StatCardProp
 
   return (
     <AnimatedListItem index={index}>
-      <div className="h-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
+      <div
+        className="h-full border border-transparent rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative"
+        style={{
+          backgroundColor: 'var(--card-bg)',
+          borderColor: 'var(--card-border)'
+        }}
+      >
+        {/* Dynamic Theme Styles */}
+        <style jsx>{`
+          div {
+            --card-bg: ${color}15;
+            --card-border: ${color}20;
+            --text-main: #000000;
+            --text-muted: #444444;
+          }
+          :global(.dark) div {
+            --card-bg: ${color}33;
+            --card-border: ${color}40;
+            --text-main: #FFFFFF;
+            --text-muted: #A1A1AA;
+          }
+          /* Custom overrides for specific colors to match screenshots better */
+          :global(.dark) div.primary-card {
+            background-color: #023E8A;
+            --text-main: #FFFFFF;
+          }
+        `}</style>
+
         {/* Decorative background gradient */}
         <div
-          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-[0.07] transition-opacity"
+          className="absolute inset-0 opacity-[0.05] dark:opacity-[0.1] group-hover:opacity-[0.15] transition-opacity"
           style={{
             background: `radial-gradient(circle at top right, ${color}, transparent)`
           }}
@@ -215,17 +242,24 @@ function StatCard({ index, title, value, percentage, icon, color }: StatCardProp
         <div className="relative z-10 h-full flex flex-col">
           <div className="flex justify-between items-start mb-8">
             <div
-              className="p-3 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110"
-              style={{ backgroundColor: `${color}1A`, color }}
+              className="p-3 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(8px)',
+                color: isIncrease || isDecrease ? color : '#fff'
+              }}
             >
-              {icon}
+              <div className="transition-colors duration-500">
+                {icon}
+              </div>
             </div>
 
             <div
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm backdrop-blur-md`}
               style={{
-                backgroundColor: isIncrease ? '#10B9811A' : isDecrease ? '#EF44441A' : '#71717a1A',
-                color: isIncrease ? '#10B981' : isDecrease ? '#EF4444' : '#71717a'
+                backgroundColor: isIncrease ? 'rgba(16, 185, 129, 0.15)' : isDecrease ? 'rgba(239, 68, 68, 0.15)' : 'rgba(113, 113, 122, 0.15)',
+                color: isIncrease ? '#10B981' : isDecrease ? '#EF4444' : '#71717a',
+                border: `1px solid ${isIncrease ? '#10B98133' : isDecrease ? '#EF444433' : '#71717a33'}`
               }}
             >
               {isIncrease ? <TrendingUp size={14} /> : isDecrease ? <TrendingDown size={14} /> : <Minus size={14} />}
@@ -234,10 +268,10 @@ function StatCard({ index, title, value, percentage, icon, color }: StatCardProp
           </div>
 
           <div className="mt-auto">
-            <h3 className="text-zinc-500 dark:text-zinc-400 text-sm font-medium mb-1">
+            <h3 className="text-[var(--text-muted)] text-sm font-medium mb-1 tracking-tight">
               {title}
             </h3>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-white">
+            <p className="text-3xl font-bold text-[var(--text-main)] tracking-tight">
               {value}
             </p>
           </div>

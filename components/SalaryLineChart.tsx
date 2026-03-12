@@ -105,7 +105,7 @@ export const SalaryLineChart: React.FC<SalaryLineChartProps> = ({ sales }) => {
 
   if (chartData.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+      <div className="flex flex-col items-center justify-center p-12 rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#023E8A]/20 backdrop-blur-xl">
         <div className="w-12 h-12 mb-4 text-zinc-400">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
         </div>
@@ -115,10 +115,10 @@ export const SalaryLineChart: React.FC<SalaryLineChartProps> = ({ sales }) => {
   }
 
   return (
-    <div className="p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-sm dark:shadow-zinc-950 w-full">
+    <div className="p-8 rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#023E8A]/20 backdrop-blur-xl shadow-sm w-full">
       <div className="mb-6">
-        <CustomText label="Salary Projection by Year" fontWeight={700} fontSize={18} className="block mb-1" />
-        <CustomText label="Total income per year" fontWeight={400} fontSize={14} className="text-zinc-500 block" />
+        <CustomText label="Salary Projection by Year" fontWeight={700} fontSize={18} className="block mb-1 text-black dark:text-white" />
+        <CustomText label="Total income per year" fontWeight={400} fontSize={14} className="text-zinc-600 dark:text-white/60 block" />
       </div>
 
       <div className="h-64 w-full mb-8">
@@ -130,7 +130,7 @@ export const SalaryLineChart: React.FC<SalaryLineChartProps> = ({ sales }) => {
                 <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" className="dark:stroke-zinc-800" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888822" />
             <XAxis 
               dataKey="year" 
               axisLine={false} 
@@ -142,18 +142,20 @@ export const SalaryLineChart: React.FC<SalaryLineChartProps> = ({ sales }) => {
               axisLine={false} 
               tickLine={false} 
               tickFormatter={formatYAxis}
-              tick={{ fontSize: 11, fill: '#71717a' }}
+              tick={{ fontSize: 11, fill: '#888' }}
               width={60}
             />
             <Tooltip 
               formatter={(value: any) => [formatCurrency(value), 'Amount']}
               contentStyle={{ 
+                backgroundColor: 'rgba(24, 24, 27, 0.8)',
                 borderRadius: '12px', 
-                border: 'none', 
-                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                border: '1px solid rgba(255,255,255,0.1)', 
+                backdropFilter: 'blur(8px)',
+                color: '#fff'
               }}
-              labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
+              labelStyle={{ color: '#fff', fontWeight: 'bold', marginBottom: '4px' }}
+              itemStyle={{ color: '#60a5fa' }}
             />
             <Area 
               type="monotone" 

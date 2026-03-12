@@ -43,11 +43,11 @@ export const MonthlySalaryLineChart: React.FC<MonthlySalaryLineChartProps> = ({ 
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full h-[350px] bg-white dark:bg-zinc-900/50 backdrop-blur-xl p-6 rounded-3xl border border-zinc-200 dark:border-white/10 shadow-xl"
+      className="w-full h-[400px] bg-white dark:bg-[#023E8A]/20 backdrop-blur-xl p-8 rounded-[32px] border border-zinc-200 dark:border-white/10 shadow-sm"
     >
       <div className="mb-6">
-        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Monthly Salary Distribution</h3>
-        <p className="text-sm text-zinc-500">Earnings breakdown per month</p>
+        <h3 className="text-lg font-bold transition-colors duration-500">Monthly Salary Distribution</h3>
+        <p className="text-sm transition-colors duration-500">Earnings breakdown per month</p>
       </div>
 
       <ResponsiveContainer width="100%" height="80%">
