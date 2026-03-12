@@ -81,7 +81,7 @@ export const CustomTextField: React.FC<CustomTextFieldProps> = ({
             className={`
               w-full px-4 py-4 rounded-xl text-base transition-all duration-200 outline-none
               bg-zinc-50 dark:bg-zinc-900 border-1.5
-              ${isFocused ? 'bg-white border-blue-500 ring-1 ring-blue-500/20' : 'border-zinc-200 dark:border-zinc-800'}
+              ${isFocused ? 'bg-white dark:bg-zinc-800 border-blue-600 ring-1 ring-blue-600/20' : 'border-zinc-200 dark:border-zinc-800'}
               ${error ? 'border-red-500 focus:border-red-500 ring-red-500/20' : ''}
               ${disabled ? 'opacity-50 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800' : ''}
               ${prefixIcon ? 'pl-11' : ''}
@@ -102,7 +102,7 @@ export const CustomTextField: React.FC<CustomTextFieldProps> = ({
             className={`
               w-full px-4 py-4 rounded-xl text-base transition-all duration-200 outline-none
               bg-zinc-50 dark:bg-zinc-900 border-1.5
-              ${isFocused ? 'bg-white border-blue-500 ring-1 ring-blue-500/20' : 'border-zinc-200 dark:border-zinc-800'}
+              ${isFocused ? 'bg-white dark:bg-zinc-800 border-blue-600 ring-1 ring-blue-600/20' : 'border-zinc-200 dark:border-zinc-800'}
               ${error ? 'border-red-500 focus:border-red-500 ring-red-500/20' : ''}
               ${disabled ? 'opacity-50 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800' : ''}
               ${prefixIcon ? 'pl-11' : ''}
