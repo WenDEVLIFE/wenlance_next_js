@@ -1,99 +1,103 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  query,
-  orderBy,
-  Timestamp
+import { 
+  collection, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  serverTimestamp 
 } from 'firebase/firestore';
-import { db } from '../utils/firebase';
+import { db, auth } from '../utils/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { ProjectModel, projectFromFirestore, projectToFirestore } from '../../app/model/ProjectModel';
 
 class ProjectRepository {
-  private collectionName = 'projects';
-
-  /**
-   * Fetches all projects from Firestore, ordered by start date.
-   */
-  async getAllProjects(): Promise<ProjectModel[]> {
-    try {
-      const q = query(collection(db, this.collectionName), orderBy('startDate', 'desc'));
-      const querySnapshot = await getDocs(q);
-
-      return querySnapshot.docs.map(doc => projectFromFirestore(doc.id, doc.data()));
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-      throw error;
-    }
+  private getCollection(userId: string) {
+    return collection(db, 'users', userId, 'projects');
   }
 
   /**
-   * Fetches a single project by ID.
+   * Listens to real-time updates for projects.
+   * @param callback Function called with the updated list of projects.
+   * @returns Unsubscribe function to stop listening.
    */
-  async getProjectById(id: string): Promise<ProjectModel | null> {
-    try {
-      const docRef = doc(db, this.collectionName, id);
-      const docSnap = await getDoc(docRef);
+  listenToProjects(callback: (projects: ProjectModel[]) => void): () => void {
+    let unsubscribeSnapshot: (() => void) | null = null;
 
-      if (docSnap.exists()) {
-        return projectFromFirestore(docSnap.id, docSnap.data());
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      // Clean up previous snapshot listener if it exists
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
       }
-      return null;
-    } catch (error) {
-      console.error("Error fetching project:", error);
-      throw error;
-    }
+
+      if (user) {
+        const q = query(this.getCollection(user.uid));
+        unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+          console.log(`Firestore Projects Snapshot: ${snapshot.size} docs`);
+          const projects = snapshot.docs.map(doc => projectFromFirestore(doc.id, doc.data()));
+          // Sort manually in JS to avoid index requirement for now
+          projects.sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+          callback(projects);
+        }, (error) => {
+          console.error("Error listening to projects:", error);
+        });
+      } else {
+        callback([]);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+      }
+    };
   }
 
   /**
    * Adds a new project to Firestore.
    */
   async addProject(project: ProjectModel): Promise<string> {
-    try {
-      const docRef = await addDoc(collection(db, this.collectionName), projectToFirestore(project));
-      return docRef.id;
-    } catch (error) {
-      console.error("Error adding project:", error);
-      throw error;
-    }
+    const user = auth.currentUser;
+    if (!user) throw new Error("User not authenticated");
+
+    const data = {
+      ...projectToFirestore(project),
+      created_at: serverTimestamp()
+    };
+
+    const docRef = await addDoc(this.getCollection(user.uid), data);
+    return docRef.id;
   }
 
   /**
    * Updates an existing project.
    */
-  async updateProject(id: string, project: Partial<ProjectModel>): Promise<void> {
-    try {
-      const docRef = doc(db, this.collectionName, id);
-      const dataToUpdate: Record<string, any> = {};
+  async updateProject(project: ProjectModel): Promise<void> {
+    const user = auth.currentUser;
+    if (!user || !project.id) throw new Error("Invalid request");
 
-      if (project.projectName) dataToUpdate.projectName = project.projectName;
-      if (project.status) dataToUpdate.status = project.status;
-      if (project.techStacks) dataToUpdate.techStacks = project.techStacks;
-      if (project.startDate) dataToUpdate.startDate = Timestamp.fromDate(project.startDate);
-      if (project.expectedEndDate) dataToUpdate.expectedEndDate = Timestamp.fromDate(project.expectedEndDate);
+    const docRef = doc(db, 'users', user.uid, 'projects', project.id);
+    const data = {
+      ...projectToFirestore(project),
+      updated_at: serverTimestamp()
+    };
 
-      await updateDoc(docRef, dataToUpdate);
-    } catch (error) {
-      console.error("Error updating project:", error);
-      throw error;
-    }
+    await updateDoc(docRef, data);
   }
 
   /**
    * Deletes a project.
    */
   async deleteProject(id: string): Promise<void> {
-    try {
-      const docRef = doc(db, this.collectionName, id);
-      await deleteDoc(docRef);
-    } catch (error) {
-      console.error("Error deleting project:", error);
-      throw error;
-    }
+    const user = auth.currentUser;
+    if (!user) throw new Error("User not authenticated");
+
+    const docRef = doc(db, 'users', user.uid, 'projects', id);
+    await deleteDoc(docRef);
   }
 }
 
