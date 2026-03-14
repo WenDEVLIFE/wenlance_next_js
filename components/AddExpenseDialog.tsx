@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Tag, DollarSign, ChevronDown } from 'lucide-react';
+import { Tag, DollarSign, ChevronDown, PhilippinePeso } from 'lucide-react';
 import { AnimatedDialog } from './AnimatedDialog';
 import { CustomTextField } from './CustomTextField';
-import { CustomButton } from './CustomButton';
 import { CustomText } from './CustomText';
 import { ExpenseModel } from '@/app/model/ExpenseModel';
 
@@ -77,17 +76,17 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
 
   return (
     <AnimatedDialog isOpen={isOpen} onClose={onClose}>
-      <div className="p-6 flex flex-col gap-5">
+      <div className="p-6 flex flex-col gap-5 ">
         {/* Header */}
         <CustomText
           label={expenseToEdit ? 'Edit Expense' : 'Add New Expense'}
           fontWeight={700}
           fontSize={20}
-          className="text-blue-900 dark:text-white"
+          className="transition-colors"
         />
 
         {/* Scrollable Form */}
-        <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto pr-1">
+        <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto ">
           {/* Title Field */}
           <CustomTextField
             label="Expense Title"
@@ -109,7 +108,7 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
                 setAmount(val);
               }
             }}
-            prefixIcon={<DollarSign size={18} />}
+            prefixIcon={<PhilippinePeso size={18} />}
           />
 
           {/* Category Selection */}
@@ -118,7 +117,7 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
               label="Category"
               fontWeight={600}
               fontSize={14}
-              className="text-blue-900 dark:text-zinc-100"
+              className="text-white"
             />
             <div className="relative">
               <button
@@ -127,17 +126,16 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
                 className="
                   w-full flex items-center justify-between px-4 py-4 rounded-xl
                   text-base transition-all duration-200 outline-none cursor-pointer
-                  bg-zinc-50 dark:bg-zinc-900 border-1.5 border-zinc-200 dark:border-zinc-800
-                  hover:border-blue-400 dark:hover:border-blue-600
-                  text-blue-900 dark:text-white
+                    bg-white border border-zinc-300 
+                  hover:border-blue-400 
+                  text-zinc-900 
                 "
               >
                 <span>{category}</span>
                 <ChevronDown
                   size={16}
-                  className={`text-zinc-400 transition-transform duration-200 ${
-                    isCategoryOpen ? 'rotate-180' : ''
-                  }`}
+                  className={` text-zinc-500 dark:text-zinc-400 transition-transform duration-200 ${isCategoryOpen ? 'rotate-180' : ''
+                    }`}
                 />
               </button>
 
@@ -145,8 +143,8 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
               {isCategoryOpen && (
                 <div
                   className="
-                    absolute z-50 mt-1 w-full rounded-xl shadow-lg overflow-hidden
-                    bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700
+                     absolute z-50 mt-1 w-full rounded-xl shadow-lg overflow-hidden
+                     bg-white border border-zinc-200 
                   "
                 >
                   {categories.map((cat) => (
@@ -158,11 +156,10 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
                         setIsCategoryOpen(false);
                       }}
                       className={`
-                        w-full text-left px-4 py-3 text-sm transition-colors cursor-pointer
-                        ${
-                          cat === category
-                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold'
-                            : 'text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700'
+                       w-full text-left px-4 py-3 text-sm bg-white cursor-pointer
+                        ${cat === category
+                          ? 'bg-white text-black font-semibold'
+                          : 'text-black hover:bg-zinc-50'
                         }
                       `}
                     >
@@ -191,21 +188,24 @@ export const AddExpenseDialog: React.FC<AddExpenseDialogProps> = ({
             onClick={onClose}
             className="
               flex-1 rounded-xl px-6 py-4 font-semibold text-base transition-colors cursor-pointer
-              bg-zinc-100 dark:bg-white/10
-              text-blue-900 dark:text-white
-              hover:bg-zinc-200 dark:hover:bg-white/20
+              bg-[#0096C7] hover:bg-[#0077B6] text-white
             "
           >
             Cancel
           </button>
 
-          <div className="flex-1">
-            <CustomButton
-              label={expenseToEdit ? 'Update Expense' : 'Add Expense'}
-              onClick={handleSave}
-              disabled={!isValid}
-            />
-          </div>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!isValid}
+            className="
+              flex-1 rounded-xl px-6 py-4 font-semibold text-base transition-colors cursor-pointer
+              text-white hover:bg-white/10
+              disabled:opacity-40 disabled:cursor-not-allowed
+            "
+          >
+            {expenseToEdit ? 'Update Expense' : 'Add Expense'}
+          </button>
         </div>
       </div>
     </AnimatedDialog>
