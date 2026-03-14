@@ -3,6 +3,7 @@ import DashboardView from '@/app/features/dashboard/DashboardView';
 import ExpensesView from '@/app/features/expenses/ExpensesView';
 import ProjectsView from '@/app/features/projects/ProjectsView';
 import SalaryView from '@/app/features/salary/SalaryView';
+import SavingsView from '@/app/features/savings/SavingsView';
 
 // Central route map — add new sections here
 const views: Record<string, React.ComponentType> = {
@@ -10,6 +11,7 @@ const views: Record<string, React.ComponentType> = {
   expenses: ExpensesView,
   projects: ProjectsView,
   salary: SalaryView,
+  savings: SavingsView,
 };
 
 interface PageProps {
