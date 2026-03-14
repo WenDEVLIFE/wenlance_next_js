@@ -6,6 +6,8 @@ export interface SavingsUtilizationModel {
   amount: number;
   date: Date;
   savingsId?: string; // Optional reference to a specific savings goal if applicable
+  utilizationType?: string;
+  description?: string;
 }
 
 /**
@@ -33,6 +35,8 @@ export const savingsUtilizationFromFirestore = (documentId: string, data: Record
     amount: Number(amount),
     date,
     savingsId: data.savingsId,
+    utilizationType: data.utilizationType,
+    description: data.description,
   };
 };
 
@@ -45,5 +49,7 @@ export const savingsUtilizationToFirestore = (utilization: SavingsUtilizationMod
     amount: utilization.amount,
     date: Timestamp.fromDate(utilization.date),
     savingsId: utilization.savingsId || null,
+    utilizationType: utilization.utilizationType || null,
+    description: utilization.description || null,
   };
 };
