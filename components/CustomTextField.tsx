@@ -54,14 +54,14 @@ export const CustomTextField: React.FC<CustomTextFieldProps> = ({
   return (
     <div className={`flex flex-col gap-2 w-full ${className}`}>
       {label && (
-        <CustomText 
-          label={label} 
-          fontWeight={600} 
-          fontSize={14} 
-          className="text-zinc-900 dark:text-zinc-100" 
+        <CustomText
+          label={label}
+          fontWeight={600}
+          fontSize={14}
+          className="text-zinc-900 dark:text-zinc-100"
         />
       )}
-      
+
       <div className="relative group">
         {prefixIcon && (
           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
@@ -80,8 +80,8 @@ export const CustomTextField: React.FC<CustomTextFieldProps> = ({
             onBlur={() => setIsFocused(false)}
             className={`
               w-full px-4 py-4 rounded-xl text-base transition-all duration-200 outline-none
-              bg-zinc-50 dark:bg-zinc-900 border-1.5
-              ${isFocused ? 'bg-white dark:bg-zinc-800 border-blue-600 ring-1 ring-blue-600/20' : 'border-zinc-200 dark:border-zinc-800'}
+              bg-zinc-50 white border-1.5 text-black
+              ${isFocused ? 'bg-white  border-blue-600 ring-1 ring-blue-600/20' : 'border-zinc-200 dark:border-zinc-800'}
               ${error ? 'border-red-500 focus:border-red-500 ring-red-500/20' : ''}
               ${disabled ? 'opacity-50 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800' : ''}
               ${prefixIcon ? 'pl-11' : ''}
@@ -101,8 +101,8 @@ export const CustomTextField: React.FC<CustomTextFieldProps> = ({
             onKeyDown={handleKeyDown}
             className={`
               w-full px-4 py-4 rounded-xl text-base transition-all duration-200 outline-none
-              bg-zinc-50 dark:bg-zinc-900 border-1.5
-              ${isFocused ? 'bg-white dark:bg-zinc-800 border-blue-600 ring-1 ring-blue-600/20' : 'border-zinc-200 dark:border-zinc-800'}
+              bg-white border-1.5 text-black
+              ${isFocused ? 'bg-white border-blue-600 ring-1 ring-blue-600/20' : 'border-zinc-200 dark:border-zinc-800'}
               ${error ? 'border-red-500 focus:border-red-500 ring-red-500/20' : ''}
               ${disabled ? 'opacity-50 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800' : ''}
               ${prefixIcon ? 'pl-11' : ''}

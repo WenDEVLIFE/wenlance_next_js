@@ -44,7 +44,7 @@ export const AnimatedDialog: React.FC<AnimatedDialogProps> = ({
               duration: duration,
               ease: [0.215, 0.61, 0.355, 1], // easeOutCubic approximation
             }}
-            className={`relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-zinc-900 ${className}`}
+            className={`relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white dark:bg-[#023E8A] transition-colors duration-300 shadow-2xl ${className}`}
           >
             {children}
           </motion.div>
