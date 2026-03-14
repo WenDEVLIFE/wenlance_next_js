@@ -2,12 +2,14 @@ import { notFound } from 'next/navigation';
 import DashboardView from '@/app/features/dashboard/DashboardView';
 import ExpensesView from '@/app/features/expenses/ExpensesView';
 import ProjectsView from '@/app/features/projects/ProjectsView';
+import SalaryView from '@/app/features/salary/SalaryView';
 
 // Central route map — add new sections here
 const views: Record<string, React.ComponentType> = {
   dashboard: DashboardView,
   expenses: ExpensesView,
   projects: ProjectsView,
+  salary: SalaryView,
 };
 
 interface PageProps {
