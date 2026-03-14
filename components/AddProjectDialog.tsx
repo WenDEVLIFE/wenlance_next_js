@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, X, Calendar, ChevronDown } from 'lucide-react';
 import { AnimatedDialog } from './AnimatedDialog';
 import { CustomTextField } from './CustomTextField';
@@ -43,6 +43,9 @@ export const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
     return d.toISOString().split('T')[0];
   });
   const [errorMsg, setErrorMsg] = useState('');
+
+  const startDateRef = useRef<HTMLInputElement>(null);
+  const endDateRef = useRef<HTMLInputElement>(null);
 
   // Populate data when editing
   useEffect(() => {
@@ -120,7 +123,7 @@ export const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
           label={projectToEdit ? 'Edit Project' : 'Add New Project'}
           fontWeight={700}
           fontSize={20}
-          className="text-white"
+          className="transition-colors"
         />
 
         {errorMsg && (
@@ -143,7 +146,7 @@ export const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
               label="Status"
               fontWeight={600}
               fontSize={14}
-              className="text-white"
+              className="transition-colors"
             />
             <div className="relative">
               <button
@@ -152,17 +155,16 @@ export const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
                 className="
                   w-full flex items-center justify-between px-4 py-4 rounded-xl
                   text-base transition-all duration-200 outline-none cursor-pointer
-                  bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700
-                  hover:border-blue-400 dark:hover:border-blue-500
-                  text-zinc-900 dark:text-white
+                  bg-white border border-zinc-300
+                  hover:border-blue-400 hover:bg-blue-50
+                  text-black
                 "
               >
                 <span>{selectedStatus}</span>
                 <ChevronDown
                   size={16}
-                  className={`text-zinc-500 dark:text-zinc-400 transition-transform duration-200 ${
-                    isStatusOpen ? 'rotate-180' : ''
-                  }`}
+                  className={`text-black transition-transform duration-200 ${isStatusOpen ? 'rotate-180' : ''
+                    }`}
                 />
               </button>
 
@@ -170,7 +172,7 @@ export const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
                 <div
                   className="
                     absolute z-50 mt-1 w-full rounded-xl shadow-lg overflow-hidden
-                    bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700
+                    bg-white  border border-zinc-200 dark:border-zinc-700 text-black
                   "
                 >
                   {statusOptions.map((status) => (
@@ -182,11 +184,10 @@ export const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
                         setIsStatusOpen(false);
                       }}
                       className={`
-                        w-full text-left px-4 py-3 text-sm transition-colors cursor-pointer
-                        ${
-                          status === selectedStatus
-                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold'
-                            : 'text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700'
+                        w-full text-left px-4 py-3 text-sm cursor-pointer
+                        ${status === selectedStatus
+                          ? 'bg-blue-50 bg-white text-black font-semibold hover:bg-blue-50'
+                          : 'text-zinc-700 text-black hover:bg-blue-50'
                         }
                       `}
                     >
@@ -257,19 +258,24 @@ export const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
               fontSize={14}
               className="text-white"
             />
-            <div className="relative group">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => startDateRef.current?.showPicker()}
+            >
               <div className="
                 w-full flex items-center justify-between px-4 py-4 rounded-xl
                 bg-white border-1.5 border-zinc-200 dark:border-zinc-800 text-black
+                group-hover:bg-blue-50 transition-colors
               ">
                 <span className="text-base font-medium">{formatDateLabel(startDate)}</span>
-                <Calendar size={20} className="text-zinc-400" />
+                <Calendar size={20} className="text-zinc-600" />
               </div>
               <input
+                ref={startDateRef}
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                className="opacity-0 w-0 h-0 absolute overflow-hidden pointer-events-none"
               />
             </div>
           </div>
@@ -282,19 +288,24 @@ export const AddProjectDialog: React.FC<AddProjectDialogProps> = ({
               fontSize={14}
               className="text-white"
             />
-            <div className="relative group">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => endDateRef.current?.showPicker()}
+            >
               <div className="
                 w-full flex items-center justify-between px-4 py-4 rounded-xl
                 bg-white border-1.5 border-zinc-200 dark:border-zinc-800 text-black
+                group-hover:bg-blue-50 transition-colors
               ">
                 <span className="text-base font-medium">{formatDateLabel(endDate)}</span>
-                <Calendar size={20} className="text-zinc-400" />
+                <Calendar size={20} className="text-zinc-600" />
               </div>
               <input
+                ref={endDateRef}
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                className="opacity-0 w-0 h-0 absolute overflow-hidden pointer-events-none"
               />
             </div>
           </div>
