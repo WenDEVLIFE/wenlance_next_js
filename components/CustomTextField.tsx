@@ -10,6 +10,7 @@ interface CustomTextFieldProps {
   placeholder?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSubmitted?: (value: string) => void;
   isPassword?: boolean;
   prefixIcon?: React.ReactNode;
@@ -30,6 +31,7 @@ export const CustomTextField: React.FC<CustomTextFieldProps> = ({
   placeholder,
   value,
   onChange,
+  onKeyDown,
   onSubmitted,
   isPassword = false,
   prefixIcon,
@@ -43,6 +45,9 @@ export const CustomTextField: React.FC<CustomTextFieldProps> = ({
   const [isObscured, setIsObscured] = useState(true);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (onKeyDown) {
+      onKeyDown(e);
+    }
     if (e.key === 'Enter' && onSubmitted) {
       onSubmitted(value || '');
     }
