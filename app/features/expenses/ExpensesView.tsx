@@ -254,10 +254,10 @@ export default function ExpensesView() {
           }}
         >
           <div className="p-6 flex flex-col gap-5">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-xl font-bold transition-colors">
               Delete Expense
             </h2>
-            <p className="text-base text-white/70">
+            <p className="text-base transition-colors">
               Are you sure you want to delete &ldquo;{expenseToDelete?.title}&rdquo;? This action cannot be undone.
             </p>
             <div className="flex gap-3">
