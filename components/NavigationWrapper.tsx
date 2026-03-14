@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { Sidebar } from './Sidebar';
 import { CustomBottomNavigation } from './CustomBottomNavigation';
 import { usePathname, useRouter } from 'next/navigation';
@@ -10,14 +10,31 @@ interface NavigationWrapperProps {
   children: React.ReactNode;
 }
 
+const routes: Record<number, string> = {
+  0: '/dashboard',
+  1: '/expenses',
+  2: '/projects',
+  3: '/salary',
+  4: '/savings',
+  5: '/ai',
+};
+
+function getIndexFromPathname(pathname: string): number {
+  for (const [index, route] of Object.entries(routes)) {
+    if (pathname.startsWith(route)) return Number(index);
+  }
+  return 0;
+}
+
 export const NavigationWrapper: React.FC<NavigationWrapperProps> = ({ children }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
 
-  // Hide navigation on login page if needed
-  const isLoginPage = pathname === '/login';
+  // Derive active index from the current pathname (must be before any early returns)
+  const currentIndex = useMemo(() => getIndexFromPathname(pathname), [pathname]);
 
+  // Hide navigation on login page
+  const isLoginPage = pathname === '/login';
   if (isLoginPage) {
     return <>{children}</>;
   }
@@ -32,14 +49,15 @@ export const NavigationWrapper: React.FC<NavigationWrapperProps> = ({ children }
   };
 
   const handleNavTap = (index: number) => {
-    if (index === 6) { // Logout index
+    if (index === 6) {
       handleLogout();
       return;
     }
-    
-    setCurrentIndex(index);
-    // Navigation logic for other items could go here
-    // e.g., if (index === 2) router.push('/projects');
+
+    const route = routes[index];
+    if (route && pathname !== route) {
+      router.push(route);
+    }
   };
 
   return (
