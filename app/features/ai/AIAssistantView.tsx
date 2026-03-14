@@ -5,78 +5,31 @@ import { Bot, Trash2, AlertCircle, X, MessageSquare, Send, User } from 'lucide-r
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PageTransition } from '@/components/PageTransition';
-import { GeminiService } from '@/lib/services/GeminiService';
+import { dashboardRepository, DashboardData } from '@/lib/repositories/DashboardRepository';
+import { GeminiService, useGeminiChat } from '@/lib/services/GeminiService';
 import AppColors from '@/lib/utils/colors';
 
-// ─── Types & Hook ───────────────────────────────────────────
-type Role = 'user' | 'model';
-
-interface ChatMessage {
-  role: Role;
-  content: string;
-}
-
-function useGeminiChat() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const isConfigured = GeminiService.isConfigured;
-
-  const sendMessage = async (text: string) => {
-    if (!text.trim() || !isConfigured) return;
-
-    const userMessage: ChatMessage = { role: 'user', content: text };
-    setMessages((prev) => [...prev, userMessage]);
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Prepare history for API
-      const historyToSend = messages.map(msg => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        content: msg.content
-      }));
-
-      const replyText = await GeminiService.sendMessage({
-        message: text,
-        conversationHistory: historyToSend,
-        model: 'gemini-2.5-pro' // As per dart translation
-      });
-
-      setMessages((prev) => [...prev, { role: 'model', content: replyText }]);
-    } catch (err: any) {
-      console.error("Gemini Error:", err);
-      setError(err.message || 'Failed to send message');
-      // Remote the stuck user message if failed? Let's leave it so they can read what they wrote.
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const clearChat = () => {
-    setMessages([]);
-    setError(null);
-  };
-
-  const clearError = () => setError(null);
-
-  return {
-    messages,
-    isLoading,
-    error,
-    isConfigured,
-    sendMessage,
-    clearChat,
-    clearError,
-  };
-}
 
 // ─── Component ──────────────────────────────────────────────
 export default function AIAssistantView() {
   const [inputText, setInputText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+
+  // Subscribe to all financial data for context
+  useEffect(() => {
+    const unsubscribe = dashboardRepository.listenToDashboard((data) => {
+      setDashboardData(data);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Format context for Gemini using the service helper
+  const systemContext = React.useMemo(() => 
+    GeminiService.formatFinancialContext(dashboardData), 
+  [dashboardData]);
+
   const {
     messages,
     isLoading,
@@ -85,7 +38,7 @@ export default function AIAssistantView() {
     sendMessage,
     clearChat,
     clearError,
-  } = useGeminiChat();
+  } = useGeminiChat({ systemContext });
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -111,7 +64,7 @@ export default function AIAssistantView() {
     <PageTransition>
       {/* Container matches the Dashboard / Savings background gradients */}
       <div className="flex flex-col h-screen bg-zinc-50 dark:bg-[#03045E] transition-colors duration-300">
-        
+
         {/* Header */}
         <div className="flex-none bg-white dark:bg-[#023E8A] shadow-sm z-20 border-b border-zinc-100 dark:border-white/10 transition-colors">
           <div className="px-6 py-4 flex items-center justify-between">
@@ -128,7 +81,7 @@ export default function AIAssistantView() {
                 </span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3">
               {messages.length > 0 && (
                 <button
@@ -171,7 +124,7 @@ export default function AIAssistantView() {
         )}
 
         {/* Chat Area */}
-        <div 
+        <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-6 scroll-smooth"
         >
@@ -190,16 +143,15 @@ export default function AIAssistantView() {
               {messages.map((msg, idx) => {
                 const isUser = msg.role === 'user';
                 return (
-                  <AnimatedListItem key={idx} index={idx} delay={50} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+                  <AnimatedListItem key={idx} index={idx} delay={0.05} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                     <div className={`flex items-start max-w-[85%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
                       {/* Avatar */}
-                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                        isUser 
-                          ? 'bg-blue-100 dark:bg-blue-900/30 ml-3' 
-                          : 'bg-blue-100 dark:bg-white/10 mr-3'
-                      }`}>
-                        {isUser 
-                          ? <User size={16} className="text-blue-600 dark:text-[#48CAE4]" /> 
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${isUser
+                        ? 'bg-blue-100 dark:bg-blue-900/30 ml-3'
+                        : 'bg-blue-100 dark:bg-white/10 mr-3'
+                        }`}>
+                        {isUser
+                          ? <User size={16} className="text-blue-600 dark:text-[#48CAE4]" />
                           : <Bot size={16} className="text-blue-600 dark:text-[#48CAE4]" />
                         }
                       </div>
@@ -207,8 +159,8 @@ export default function AIAssistantView() {
                       {/* Bubble */}
                       <div className={`
                         px-4 py-3 rounded-2xl font-sans text-[15px] leading-relaxed
-                        ${isUser 
-                          ? 'bg-blue-600 text-white rounded-tr-sm' 
+                        ${isUser
+                          ? 'bg-blue-600 text-white rounded-tr-sm'
                           : 'bg-white dark:bg-[#023E8A] text-zinc-800 dark:text-white rounded-tl-sm border border-zinc-100 dark:border-white/10 shadow-sm'
                         }
                       `}>
@@ -226,16 +178,16 @@ export default function AIAssistantView() {
 
               {/* Typing Indicator */}
               {isLoading && (
-                <AnimatedListItem index={messages.length} delay={50} className="flex justify-start">
+                <AnimatedListItem index={messages.length} delay={0.05} className="flex justify-start">
                   <div className="flex items-start max-w-[85%] flex-row">
-                     <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-white/10 mr-3 flex items-center justify-center">
-                        <Bot size={16} className="text-blue-600 dark:text-[#48CAE4]" />
-                     </div>
-                     <div className="px-5 py-3.5 rounded-2xl bg-white dark:bg-[#023E8A] rounded-tl-sm border border-zinc-100 dark:border-white/10 shadow-sm flex items-center gap-2 text-zinc-600 dark:text-zinc-300">
-                        <div className="w-2h-w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                     </div>
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 dark:bg-white/10 mr-3 flex items-center justify-center">
+                      <Bot size={16} className="text-blue-600 dark:text-[#48CAE4]" />
+                    </div>
+                    <div className="px-5 py-3.5 rounded-2xl bg-white dark:bg-[#023E8A] rounded-tl-sm border border-zinc-100 dark:border-white/10 shadow-sm flex items-center gap-2 text-zinc-600 dark:text-zinc-300">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                    </div>
                   </div>
                 </AnimatedListItem>
               )}

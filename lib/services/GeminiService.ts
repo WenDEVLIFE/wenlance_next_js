@@ -1,11 +1,50 @@
+import React, { useState } from 'react';
+import { DashboardData } from '../repositories/DashboardRepository';
+
 export class GeminiService {
-  private static readonly BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
+  private static readonly BASE_URL = 'https://generativelanguage.googleapis.com/v1';
 
   /**
    * Get API key from environment variables
    */
   private static get apiKey(): string | undefined {
     return process.env.NEXT_PUBLIC_GEMINI_API;
+  }
+
+  /**
+   * Formats specialized financial data into a comprehensive system prompt for Gemini.
+   */
+  public static formatFinancialContext(data: DashboardData | null): string | undefined {
+    if (!data) return undefined;
+
+    let context = "You are a helpful financial assistant for 'Wenlance'. Here is the user's current project, financial and expense data:\n\n";
+
+    // Projects
+    context += "PROJECTS:\n";
+    data.projects.forEach(p => {
+      context += `- ${p.projectName} (${p.status})\n`;
+    });
+
+    // Sales/Salary
+    context += "\nSALES & SALARY:\n";
+    data.sales.forEach(s => {
+      context += `- ${s.title} (${s.category}): ${s.amount} on ${s.dateReceived}\n`;
+    });
+
+    // Expenses
+    context += "\nEXPENSES:\n";
+    data.expenses.forEach(e => {
+      context += `- ${e.title} (${e.category}): ${e.amount} on ${e.date}\n`;
+    });
+
+    // Savings
+    context += "\nSAVINGS:\n";
+    data.savings.forEach(s => {
+      context += `- ${s.title} (${s.category}): Target ${s.amount}\n`;
+    });
+
+    context += "\nPlease use these ACTUAL numbers when the user asks about their finances. Be concise.";
+    return context;
   }
 
   /**
@@ -113,4 +152,73 @@ export class GeminiService {
       throw new Error(`Failed to connect to Gemini API: ${e}`);
     }
   }
+}
+
+// ─── React Hook ──────────────────────────────────────────────
+
+type Role = 'user' | 'model';
+
+interface ChatMessage {
+  role: Role;
+  content: string;
+}
+
+interface useGeminiChatProps {
+  systemContext?: string;
+}
+
+export function useGeminiChat({ systemContext }: useGeminiChatProps) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isConfigured = GeminiService.isConfigured;
+
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || !isConfigured) return;
+
+    const userMessage: ChatMessage = { role: 'user', content: text };
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Prepare history for API
+      const historyToSend = messages.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'model',
+        content: msg.content
+      }));
+
+      const replyText = await GeminiService.sendMessage({
+        message: text,
+        conversationHistory: historyToSend,
+        systemContext: systemContext,
+        model: 'gemini-2.5-pro'
+      });
+
+      setMessages((prev) => [...prev, { role: 'model', content: replyText }]);
+    } catch (err: any) {
+      console.error("Gemini Error:", err);
+      setError(err.message || 'Failed to send message');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const clearChat = () => {
+    setMessages([]);
+    setError(null);
+  };
+
+  const clearError = () => setError(null);
+
+  return {
+    messages,
+    isLoading,
+    error,
+    isConfigured,
+    sendMessage,
+    clearChat,
+    clearError,
+  };
 }
