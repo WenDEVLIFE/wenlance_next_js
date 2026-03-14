@@ -6,6 +6,8 @@ export interface SavingsModel {
   category: string;
   amount: number;
   createdAt: Date;
+  description?: string;
+  storageType?: string;
 }
 
 /**
@@ -34,6 +36,8 @@ export const savingsFromFirestore = (documentId: string, data: Record<string, an
     category,
     amount: Number(amount),
     createdAt,
+    description: data.description || "",
+    storageType: data.storageType || "Bank",
   };
 };
 
@@ -46,5 +50,7 @@ export const savingsToFirestore = (savings: SavingsModel): Record<string, any> =
     category: savings.category,
     amount: savings.amount,
     createdAt: Timestamp.fromDate(savings.createdAt),
+    description: savings.description || "",
+    storageType: savings.storageType || "Bank",
   };
 };
