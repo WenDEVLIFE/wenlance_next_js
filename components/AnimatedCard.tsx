@@ -40,7 +40,7 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
       onClick={onClick}
       style={{
         borderRadius,
-        backgroundColor: color || 'var(--background)',
+        ...(color ? { backgroundColor: color } : {}),
         ...props.style,
       }}
       className={`cursor-pointer overflow-hidden ${className}`}
