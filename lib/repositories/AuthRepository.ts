@@ -1,5 +1,5 @@
 import { auth } from '@/lib/utils/firebase';
-import { signInWithEmailAndPassword, User, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, User, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 import { SessionUtils } from '@/lib/utils/SessionUtils';
 
 /**
@@ -7,7 +7,7 @@ import { SessionUtils } from '@/lib/utils/SessionUtils';
  * Translated from Swift LoginRepository.
  */
 export interface AuthRepository {
-  login(email: string, password: string): Promise<User>;
+  login(email: string, password: string, rememberMe?: boolean): Promise<User>;
   logout(): Promise<void>;
   getCurrentUser(): User | null;
 }
@@ -19,12 +19,18 @@ export class FirebaseAuthRepository implements AuthRepository {
   /**
    * Authenticate user with email and password
    */
-  async login(email: string, password: string): Promise<User> {
+  async login(email: string, password: string, rememberMe: boolean = true): Promise<User> {
     try {
+      // Set persistence based on rememberMe flag
+      await setPersistence(
+        auth,
+        rememberMe ? browserLocalPersistence : browserSessionPersistence
+      );
+
       const result = await signInWithEmailAndPassword(auth, email, password);
 
       // Save session locally
-      await SessionUtils.saveSession(result.user);
+      await SessionUtils.saveSession(result.user, rememberMe);
 
       return result.user;
     } catch (error: any) {

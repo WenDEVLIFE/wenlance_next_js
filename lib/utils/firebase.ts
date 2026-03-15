@@ -15,12 +15,9 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+// Persistence will be set dynamically during login
+// export const auth = getAuth(app);
 export const auth = getAuth(app);
-
-// Enable local persistence
-setPersistence(auth, browserLocalPersistence).catch((err) => {
-  console.error("Firebase persistence error:", err);
-});
 
 export const db = getFirestore(app);
 export default app;
