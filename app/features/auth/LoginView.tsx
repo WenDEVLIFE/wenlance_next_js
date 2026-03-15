@@ -24,6 +24,7 @@ export const LoginView: React.FC = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,8 +55,8 @@ export const LoginView: React.FC = () => {
     setError(null);
 
     try {
-      // Login using the repository
-      await authRepository.login(email, password);
+      // Login using the repository with rememberMe flag
+      await authRepository.login(email, password, rememberMe);
 
       toast.success('Login successful!', {
         icon: <CheckCircle2 className="text-green-500" />,
@@ -152,14 +153,44 @@ export const LoginView: React.FC = () => {
               />
             </AnimatedListItem>
 
+            <AnimatedListItem index={4} className="flex items-center justify-between px-1">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="peer appearance-none w-5 h-5 rounded-md border-2 border-zinc-300 dark:border-zinc-700 checked:bg-blue-500 checked:border-blue-500 transition-all duration-200 cursor-pointer"
+                  />
+                  <CheckCircle2 
+                    size={14} 
+                    className="absolute left-[3px] top-[3px] text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" 
+                  />
+                </div>
+                <CustomText 
+                  label="Remember Me" 
+                  fontSize={14} 
+                  className="text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" 
+                />
+              </label>
+
+              <button 
+                type="button"
+                className="text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors"
+                onClick={() => toast.info('Password recovery coming soon')}
+              >
+                Forgot Password?
+              </button>
+            </AnimatedListItem>
+
             {error && (
-              <AnimatedListItem index={4} className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3">
+              <AnimatedListItem index={5} className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3">
                 <AlertTriangle size={18} className="text-red-500 shrink-0" />
                 <CustomText label={error} fontSize={12} className="text-red-400" />
               </AnimatedListItem>
             )}
 
-            <AnimatedListItem index={5} className="pt-4">
+            <AnimatedListItem index={6} className="pt-2">
               <button
                 disabled={isLoading}
                 onClick={() => handleLogin()}
