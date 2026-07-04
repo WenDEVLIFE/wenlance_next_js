@@ -7,6 +7,71 @@ export interface RAGContext {
   chunks: SearchResult[];
   prompt: string;
   dataSummary: string;
+  isFinanceRelated: boolean;
+}
+
+// Keywords that indicate a finance-related question
+const FINANCE_KEYWORDS = [
+  // English
+  'expense', 'expenses', 'spend', 'spent', 'spending', 'cost', 'costs', 'costing',
+  'salary', 'income', 'revenue', 'earning', 'earnings', 'pay', 'payment', 'payments',
+  'sale', 'sales', 'sold', 'profit', 'loss', 'balance', 'budget', 'budgeting',
+  'savings', 'saving', 'bank', 'account', 'accounts', 'money', 'cash', 'fund', 'funds',
+  'project', 'projects', 'client', 'clients', 'freelance', 'work', 'works', 'job', 'jobs',
+  'total', 'sum', 'average', 'amount', 'amounts', 'price', 'pricing',
+  'category', 'categories', 'description', 'date', 'when', 'how much',
+  'financial', 'finance', 'money', 'debt', 'loan', 'investment', 'invest',
+  'tax', 'taxes', 'invoice', 'invoices', 'bill', 'bills', 'due', 'owed',
+  'report', 'summary', 'overview', 'breakdown', 'track', 'tracking',
+  // Filipino/Tagalog
+  'gastos', 'sweldo', 'kita', 'pera', 'ipon', 'save', 'income', 'babayaran',
+  'utang', 'bayad', 'negosyo', 'trabaho', 'kliyente', 'proyekto',
+  // Cebuano/Visayan
+  'gasto', 'sweldo', 'kita', 'kwarta', 'padulngan', 'trabaho',
+];
+
+// Patterns that indicate NON-finance questions
+const NON_FINANCE_PATTERNS = [
+  'recipe', 'cook', 'cooking', 'food', 'ingredient', 'ingredients',
+  'adobo', 'sinigang', 'tinola', 'lechon', 'kare-kare', 'pad thai',
+  'pizza', 'pasta', 'burger', 'sushi', 'ramen', ' steak',
+  'weather', 'temperature', 'rain', 'sunny', 'storm', 'typhoon',
+  'song', 'music', 'movie', 'film', 'actor', 'actress', 'singer',
+  'game', 'play', 'gaming', 'nba', 'basketball', 'soccer', 'football',
+  'poem', 'poetry', 'story', 'novel', 'book', 'author',
+  'code', 'coding', 'programming', 'javascript', 'python', 'react',
+  'love', 'relationship', 'dating', 'girlfriend', 'boyfriend',
+  'joke', 'funny', 'humor', 'laugh',
+  'hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening',
+  'how are you', 'how do you do', 'what are you',
+  'meaning of life', 'philosophy', 'religion', 'god',
+  'exercise', 'workout', 'gym', 'diet', 'health', 'medical',
+  'travel', 'tourism', 'hotel', 'flight', 'airline',
+];
+
+/**
+ * Check if a query is related to finance/work.
+ */
+function isFinanceRelated(query: string): boolean {
+  const lower = query.toLowerCase().trim();
+
+  // Very short queries (1-2 words) - check if they match finance keywords
+  if (lower.split(/\s+/).length <= 2) {
+    return FINANCE_KEYWORDS.some(kw => lower.includes(kw));
+  }
+
+  // Check for non-finance patterns first (strong signal)
+  const nonFinanceMatches = NON_FINANCE_PATTERNS.filter(p => lower.includes(p));
+  if (nonFinanceMatches.length > 0) {
+    // If it matches non-finance patterns AND doesn't match finance keywords, reject
+    const financeMatches = FINANCE_KEYWORDS.filter(kw => lower.includes(kw));
+    if (financeMatches.length === 0) {
+      return false;
+    }
+  }
+
+  // Check for finance keywords
+  return FINANCE_KEYWORDS.some(kw => lower.includes(kw));
 }
 
 class RAGHarnessImpl {
@@ -58,7 +123,18 @@ class RAGHarnessImpl {
    * Retrieve relevant context for a user query.
    * Returns ranked chunks and a formatted prompt.
    */
-  retrieve(query: string, topK: number = 5): RAGContext {
+  retrieve(query: string, topK: number = 3): RAGContext {
+    const related = isFinanceRelated(query);
+
+    if (!related) {
+      return {
+        chunks: [],
+        prompt: '',
+        dataSummary: '',
+        isFinanceRelated: false,
+      };
+    }
+
     const queryEmbedding = embeddingService.embed(query);
     const results = vectorStore.search(queryEmbedding, topK);
 
@@ -87,6 +163,7 @@ class RAGHarnessImpl {
       chunks: finalChunks,
       prompt,
       dataSummary,
+      isFinanceRelated: true,
     };
   }
 
@@ -98,26 +175,14 @@ class RAGHarnessImpl {
       return [
         "You are a financial assistant for 'Wenlance'.",
         "The user's question does not match any of their financial data.",
-        "Politely decline and redirect: 'I can only help with your financial data — expenses, sales, projects, and savings. Please ask about those topics.'",
-        "Do NOT answer unrelated questions (weather, recipes, coding, general knowledge, etc.).",
+        "Politely decline: 'I can only help with your financial data — expenses, sales, projects, and savings.'",
       ].join(' ');
     }
 
-    let context = [
-      "You are a financial assistant for 'Wenlance'.",
-      "RULES:",
-      "1. Answer ONLY based on the financial data provided below.",
-      "2. Do NOT make up numbers, estimates, or data not shown here.",
-      "3. If the data doesn't contain the answer, say 'I don't have that information in your financial records.'",
-      "4. Do NOT answer questions unrelated to finances, expenses, sales, projects, or savings.",
-      "5. For unrelated questions (weather, recipes, coding, general knowledge), respond: 'I can only help with your financial data — expenses, sales, projects, and savings.'",
-      "6. Be concise and specific. Use the actual numbers from the data.",
-      "",
-      "RELEVANT DATA:",
-      "",
-    ].join('\n');
+    // Build compact context - keep it under ~2000 chars to fit in 4096 token window
+    let context = "Financial assistant for Wenlance. Answer ONLY from this data. Be brief.\n\n";
 
-    // Group by type for organized output
+    // Group by type
     const byType = new Map<string, SearchResult[]>();
     for (const result of results) {
       const type = result.chunk.type;
@@ -126,20 +191,26 @@ class RAGHarnessImpl {
     }
 
     const typeLabels: Record<string, string> = {
-      summary: 'FINANCIAL OVERVIEW',
+      summary: 'OVERVIEW',
       expense: 'EXPENSES',
-      sale: 'SALES & SALARY',
+      sale: 'SALES',
       project: 'PROJECTS',
       savings: 'SAVINGS',
     };
 
     for (const [type, chunks] of byType) {
       const label = typeLabels[type] || type.toUpperCase();
-      context += `--- ${label} ---\n`;
-      for (const { chunk, score } of chunks) {
-        context += `${chunk.text}\n`;
+      context += `[${label}]\n`;
+      for (const { chunk } of chunks) {
+        // Truncate each chunk to max 150 chars
+        const text = chunk.text.length > 150 ? chunk.text.substring(0, 150) + '...' : chunk.text;
+        context += `${text}\n`;
       }
-      context += '\n';
+    }
+
+    // Hard limit: truncate entire context to ~2500 chars (~1000 tokens)
+    if (context.length > 2500) {
+      context = context.substring(0, 2500) + '...';
     }
 
     return context;

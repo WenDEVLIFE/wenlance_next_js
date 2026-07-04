@@ -70,44 +70,49 @@ class WebLLMServiceImpl {
   }
 
   /**
-   * Formats financial data into a system prompt for the LLM (fallback when RAG not available).
+   * Formats financial data into a compact system prompt for the LLM.
    */
   formatFinancialContext(data: DashboardData | null): string | undefined {
     if (!data) return undefined;
 
-    let context = [
-      "You are a financial assistant for 'Wenlance'.",
-      "RULES:",
-      "1. Answer ONLY based on the financial data provided below.",
-      "2. Do NOT make up numbers, estimates, or data not shown here.",
-      "3. If the data doesn't contain the answer, say 'I don't have that information in your financial records.'",
-      "4. Do NOT answer questions unrelated to finances, expenses, sales, projects, or savings.",
-      "5. For unrelated questions (weather, recipes, coding, general knowledge), respond: 'I can only help with your financial data — expenses, sales, projects, and savings.'",
-      "6. Be concise and specific. Use the actual numbers from the data.",
-      "",
-      "FINANCIAL DATA:",
-      "",
-    ].join('\n');
+    // Compact format to fit in small context windows (4096 tokens)
+    let context = "Financial assistant for Wenlance. Answer ONLY from this data. Be brief.\n\n";
 
-    context += 'PROJECTS:\n';
-    data.projects.forEach(p => {
-      context += `- ${p.projectName} (${p.status})\n`;
-    });
+    if (data.projects.length > 0) {
+      context += '[PROJECTS]\n';
+      data.projects.forEach(p => {
+        context += `- ${p.projectName} (${p.status})\n`;
+      });
+      context += '\n';
+    }
 
-    context += '\nSALES & SALARY:\n';
-    data.sales.forEach(s => {
-      context += `- ${s.title} (${s.category}): ${s.amount} on ${s.dateReceived}\n`;
-    });
+    if (data.sales.length > 0) {
+      context += '[SALES]\n';
+      data.sales.forEach(s => {
+        context += `- ${s.title}: ₱${s.amount.toLocaleString()} on ${s.dateReceived.toLocaleDateString()}\n`;
+      });
+      context += '\n';
+    }
 
-    context += '\nEXPENSES:\n';
-    data.expenses.forEach(e => {
-      context += `- ${e.title} (${e.category}): ${e.amount} on ${e.date}\n`;
-    });
+    if (data.expenses.length > 0) {
+      context += '[EXPENSES]\n';
+      data.expenses.forEach(e => {
+        context += `- ${e.title}: ₱${e.amount.toLocaleString()} on ${e.date.toLocaleDateString()}\n`;
+      });
+      context += '\n';
+    }
 
-    context += '\nSAVINGS:\n';
-    data.savings.forEach(s => {
-      context += `- ${s.title} (${s.category}): Target ${s.amount}\n`;
-    });
+    if (data.savings.length > 0) {
+      context += '[SAVINGS]\n';
+      data.savings.forEach(s => {
+        context += `- ${s.title}: ₱${s.amount.toLocaleString()}\n`;
+      });
+    }
+
+    // Hard limit: truncate to ~2500 chars
+    if (context.length > 2500) {
+      context = context.substring(0, 2500) + '...';
+    }
 
     return context;
   }
@@ -174,12 +179,24 @@ class WebLLMServiceImpl {
       throw new Error('No model loaded. Please load a model first.');
     }
 
+    // Check if query is finance-related via RAG
+    let ragResult = null;
+    if (ragHarness.isReady) {
+      ragResult = ragHarness.retrieve(message);
+
+      // Block unrelated questions BEFORE they reach the LLM
+      if (!ragResult.isFinanceRelated) {
+        const refusal = "I can only help with your financial data — expenses, sales, projects, and savings. Please ask about those topics.";
+        yield refusal;
+        return;
+      }
+    }
+
     const messages: ChatCompletionMessageParam[] = [];
 
     // Use RAG context if available, otherwise fall back to raw context
     let finalContext = systemContext;
-    if (ragHarness.isReady) {
-      const ragResult = ragHarness.retrieve(message);
+    if (ragResult && ragResult.prompt) {
       finalContext = ragResult.prompt;
     }
 
@@ -230,12 +247,22 @@ class WebLLMServiceImpl {
       throw new Error('No model loaded. Please load a model first.');
     }
 
+    // Check if query is finance-related via RAG
+    let ragResult = null;
+    if (ragHarness.isReady) {
+      ragResult = ragHarness.retrieve(message);
+
+      // Block unrelated questions BEFORE they reach the LLM
+      if (!ragResult.isFinanceRelated) {
+        return "I can only help with your financial data — expenses, sales, projects, and savings. Please ask about those topics.";
+      }
+    }
+
     const messages: ChatCompletionMessageParam[] = [];
 
     // Use RAG context if available, otherwise fall back to raw context
     let finalContext = systemContext;
-    if (ragHarness.isReady) {
-      const ragResult = ragHarness.retrieve(message);
+    if (ragResult && ragResult.prompt) {
       finalContext = ragResult.prompt;
     }
 
