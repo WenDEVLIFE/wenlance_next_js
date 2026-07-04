@@ -5,6 +5,7 @@ import ProjectsView from '@/app/features/projects/ProjectsView';
 import SalaryView from '@/app/features/salary/SalaryView';
 import SavingsView from '@/app/features/savings/SavingsView';
 import AIAssistantView from '@/app/features/ai/AIAssistantView';
+import TasksView from '@/app/features/tasks/TasksView';
 
 // Central route map — add new sections here
 const views: Record<string, React.ComponentType> = {
@@ -13,6 +14,7 @@ const views: Record<string, React.ComponentType> = {
   projects: ProjectsView,
   salary: SalaryView,
   savings: SavingsView,
+  tasks: TasksView,
   ai: AIAssistantView,
 };
 

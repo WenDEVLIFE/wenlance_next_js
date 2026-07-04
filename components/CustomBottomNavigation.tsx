@@ -8,6 +8,7 @@ import {
   Briefcase, 
   Landmark, 
   PiggyBank, 
+  CheckSquare, 
   Bot, 
   Power 
 } from 'lucide-react';
@@ -30,8 +31,9 @@ const navItems: NavItem[] = [
   { icon: Briefcase, label: 'Projects', index: 2 },
   { icon: Landmark, label: 'Salary', index: 3 },
   { icon: PiggyBank, label: 'Savings', index: 4 },
-  { icon: Bot, label: 'AI', index: 5 },
-  { icon: Power, label: 'Logout', index: 6 },
+  { icon: CheckSquare, label: 'Tasks', index: 5 },
+  { icon: Bot, label: 'AI', index: 6 },
+  { icon: Power, label: 'Logout', index: 7 },
 ];
 
 export const CustomBottomNavigation: React.FC<CustomBottomNavigationProps> = ({

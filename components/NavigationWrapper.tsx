@@ -8,6 +8,7 @@ import { authRepository } from '@/lib/repositories/AuthRepository';
 import { auth } from '@/lib/utils/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { SessionUtils } from '@/lib/utils/SessionUtils';
+import { notificationService } from '@/lib/services/NotificationService';
 
 interface NavigationWrapperProps {
   children: React.ReactNode;
@@ -19,7 +20,8 @@ const routes: Record<number, string> = {
   2: '/projects',
   3: '/salary',
   4: '/savings',
-  5: '/ai',
+  5: '/tasks',
+  6: '/ai',
 };
 
 function getIndexFromPathname(pathname: string): number {
@@ -39,6 +41,8 @@ export const NavigationWrapper: React.FC<NavigationWrapperProps> = ({ children }
 
   // Auth Guard & Session Sync
   React.useEffect(() => {
+    notificationService.start();
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       const isLoginPage = pathname === '/login';
       const isRootPath = pathname === '/';
@@ -94,7 +98,7 @@ export const NavigationWrapper: React.FC<NavigationWrapperProps> = ({ children }
   };
 
   const handleNavTap = (index: number) => {
-    if (index === 6) {
+    if (index === 7) {
       handleLogout();
       return;
     }
