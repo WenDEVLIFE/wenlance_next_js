@@ -9,6 +9,7 @@ class NotificationService {
   private unsubscribe: (() => void) | null = null;
   private notifiedTaskIds: Set<string> = new Set();
   private repeatTimeouts: Map<string, ReturnType<typeof setTimeout>> = new Map();
+  private lastCheckedDate: string = '';
   private started = false;
   private listeners: AlarmCallback[] = [];
 
@@ -68,6 +69,12 @@ class NotificationService {
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const today = now.toISOString().split('T')[0];
 
+    // Clear notifiedTaskIds at midnight so tasks can re-fire on new day
+    if (today !== this.lastCheckedDate) {
+      this.notifiedTaskIds.clear();
+      this.lastCheckedDate = today;
+    }
+
     const enabledTasks = this.allTasks.filter(t => t.enabled);
 
     for (const task of enabledTasks) {
@@ -110,14 +117,16 @@ class NotificationService {
       if (existingTimeout) clearTimeout(existingTimeout);
 
       const timeoutMs = repeatMinutes * 60 * 1000;
+      const taskId = task.id;
       const timeout = setTimeout(() => {
-        this.repeatTimeouts.delete(task.id!);
-        const taskStillEnabled = this.allTasks.find(t => t.id === task.id && t.enabled);
+        this.repeatTimeouts.delete(taskId);
+        const taskStillEnabled = this.allTasks.find(t => t.id === taskId && t.enabled);
         if (taskStillEnabled) {
           const now = new Date();
           const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-          const repeatKey = `${task.id}-${todayDate}-${currentTime}`;
-          this.fireAlarm(taskStillEnabled, repeatKey, todayDate);
+          const newToday = now.toISOString().split('T')[0];
+          const repeatKey = `${taskId}-${newToday}-${currentTime}`;
+          this.fireAlarm(taskStillEnabled, repeatKey, newToday);
         }
       }, timeoutMs);
       this.repeatTimeouts.set(task.id, timeout);
