@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Bell, BellOff, Edit, Trash2, Plus, Clock, RotateCcw, Vibrate } from 'lucide-react';
+import { Bell, BellOff, Edit, Trash2, Plus, Clock, RotateCcw } from 'lucide-react';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { AnimatedCard } from '@/components/AnimatedCard';
 import { AnimatedFAB } from '@/components/AnimatedFAB';
@@ -12,7 +12,6 @@ import { PageTransition } from '@/components/PageTransition';
 import { TaskModel } from '@/app/model/TaskModel';
 import { taskRepository } from '@/lib/repositories/TaskRepository';
 import AppColors from '@/lib/utils/colors';
-import { notificationService } from '@/lib/services/NotificationService';
 
 function formatTime(time: string): string {
   if (!time) return '';
@@ -33,14 +32,6 @@ export default function TasksView() {
   const [showingDeleteDialog, setShowingDeleteDialog] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<TaskModel | null>(null);
 
-  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
-
-  useEffect(() => {
-    if (notificationService.isSupported) {
-      setNotificationPermission(notificationService.permission);
-    }
-  }, []);
-
   useEffect(() => {
     try {
       const unsubscribe = taskRepository.listenToTasks((data) => {
@@ -53,32 +44,6 @@ export default function TasksView() {
       setIsLoading(false);
     }
   }, []);
-
-  const handleEnableNotifications = async () => {
-    const granted = await notificationService.requestPermission();
-    setNotificationPermission(granted ? 'granted' : 'denied');
-  };
-
-  const handleTestNotification = async () => {
-    const perm = Notification.permission;
-    if (perm !== 'granted') {
-      alert(`Notification permission: ${perm}. Please click "Enable Alerts" first and allow the browser prompt.`);
-      return;
-    }
-
-    try {
-      const n = new Notification('Wenlance Test', {
-        body: 'Notification is working!',
-        icon: '/icon.png',
-        tag: 'test-notification',
-      });
-      n.onerror = () => {
-        alert('Notification failed. Check your browser/OS notification settings.');
-      };
-    } catch (err) {
-      alert(`Notification error: ${err}`);
-    }
-  };
 
   const handleSaveTask = async (task: TaskModel) => {
     try {
@@ -124,32 +89,6 @@ export default function TasksView() {
               Tasks
             </h1>
             <div className="flex items-center gap-2">
-              {notificationPermission !== 'granted' && (
-                <button
-                  onClick={handleEnableNotifications}
-                  className="
-                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold
-                    bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400
-                    hover:bg-amber-500/20 transition-colors cursor-pointer
-                  "
-                >
-                  <Bell size={14} />
-                  Enable Alerts
-                </button>
-              )}
-              {notificationPermission === 'granted' && (
-                <button
-                  onClick={handleTestNotification}
-                  className="
-                    flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold
-                    bg-green-500/10 border border-green-500/30 text-green-600 dark:text-green-400
-                    hover:bg-green-500/20 transition-colors cursor-pointer
-                  "
-                >
-                  <Vibrate size={14} />
-                  Test
-                </button>
-              )}
               <div className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-1 rounded-full shadow-lg border border-white/20">
                 <ThemeToggle iconSize={22} />
               </div>
@@ -167,11 +106,11 @@ export default function TasksView() {
             </div>
           </div>
 
-          {enabledCount > 0 && notificationPermission === 'granted' && (
+          {enabledCount > 0 && (
             <div className="mb-4 px-4 py-3 bg-green-500/10 border border-green-500/30 rounded-xl">
               <p className="text-xs font-medium text-green-600 dark:text-green-400 flex items-center gap-2">
                 <Bell size={14} />
-                {enabledCount} active task{enabledCount > 1 ? 's' : ''} with reminders
+                {enabledCount} active alarm{enabledCount > 1 ? 's' : ''} — alerts will show on-screen when due
               </p>
             </div>
           )}

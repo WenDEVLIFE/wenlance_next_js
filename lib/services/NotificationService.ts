@@ -1,41 +1,28 @@
 import { TaskModel, getTodayDayOfWeek } from '@/app/model/TaskModel';
 import taskRepository from '@/lib/repositories/TaskRepository';
 
+export type AlarmCallback = (task: TaskModel) => void;
+
 class NotificationService {
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private allTasks: TaskModel[] = [];
   private unsubscribe: (() => void) | null = null;
   private notifiedTaskIds: Set<string> = new Set();
   private started = false;
+  private listeners: AlarmCallback[] = [];
 
   get isSupported(): boolean {
-    return typeof window !== 'undefined' && 'Notification' in window;
+    return typeof window !== 'undefined';
   }
 
-  get permission(): NotificationPermission {
-    if (!this.isSupported) return 'denied';
-    return Notification.permission;
-  }
-
-  get isRunning(): boolean {
-    return this.started;
-  }
-
-  async requestPermission(): Promise<boolean> {
-    if (!this.isSupported) return false;
-    if (Notification.permission === 'granted') return true;
-    if (Notification.permission === 'denied') return false;
-
-    try {
-      const result = await Notification.requestPermission();
-      return result === 'granted';
-    } catch {
-      return false;
-    }
+  onAlarm(callback: AlarmCallback): () => void {
+    this.listeners.push(callback);
+    return () => {
+      this.listeners = this.listeners.filter(cb => cb !== callback);
+    };
   }
 
   start() {
-    if (!this.isSupported) return;
     if (this.started) return;
     this.started = true;
 
@@ -61,6 +48,7 @@ class NotificationService {
     }
     this.allTasks = [];
     this.notifiedTaskIds.clear();
+    this.listeners = [];
   }
 
   private shouldFireToday(task: TaskModel): boolean {
@@ -73,8 +61,6 @@ class NotificationService {
   }
 
   private checkAndNotify() {
-    if (Notification.permission !== 'granted') return;
-
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     const today = now.toISOString().split('T')[0];
@@ -87,34 +73,22 @@ class NotificationService {
       const notificationKey = `${task.id}-${today}`;
       if (this.notifiedTaskIds.has(notificationKey)) continue;
 
-      if (task.frequency === 'one-time' && task.lastTriggeredDate) {
-        continue;
-      }
+      if (task.frequency === 'one-time' && task.lastTriggeredDate) continue;
 
       if (!this.shouldFireToday(task)) continue;
 
-      this.fireNotification(task, notificationKey, today);
+      this.fireAlarm(task, notificationKey, today);
     }
   }
 
-  private async fireNotification(task: TaskModel, notificationKey: string, todayDate: string) {
+  private fireAlarm(task: TaskModel, notificationKey: string, todayDate: string) {
     this.notifiedTaskIds.add(notificationKey);
 
-    const title = 'Task Reminder';
-    const body = `Time for: ${task.name}`;
-
-    try {
-      new Notification(title, { body, icon: '/icon.png', tag: `task-${task.id}-${todayDate}` });
-    } catch (err) {
-      try {
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.ready;
-          await reg.showNotification(title, { body, icon: '/icon.png', tag: `task-${task.id}-${todayDate}` });
-        }
-      } catch (swErr) {
-        console.error('Notification delivery failed:', swErr);
-      }
+    if ('vibrate' in navigator) {
+      navigator.vibrate([200, 100, 200, 100, 200]);
     }
+
+    this.listeners.forEach(cb => cb(task));
 
     try {
       const updatedTask: TaskModel = {
@@ -122,9 +96,9 @@ class NotificationService {
         lastTriggeredDate: todayDate,
         enabled: task.frequency === 'one-time' ? false : task.enabled,
       };
-      await taskRepository.updateTask(updatedTask);
+      taskRepository.updateTask(updatedTask);
     } catch (err) {
-      console.error('Failed to update task after notification:', err);
+      console.error('Failed to update task after alarm:', err);
     }
   }
 }
