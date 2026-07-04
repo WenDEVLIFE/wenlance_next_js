@@ -1,6 +1,7 @@
 import { CreateMLCEngine, prebuiltAppConfig, MLCEngine, ChatCompletionChunk } from '@mlc-ai/web-llm';
 import type { ChatCompletionMessageParam } from '@mlc-ai/web-llm';
 import { DashboardData } from '../repositories/DashboardRepository';
+import { ragHarness, RAGContext } from '../ai/RAGHarness';
 
 export interface ModelOption {
   id: string;
@@ -44,7 +45,32 @@ class WebLLMServiceImpl {
   }
 
   /**
-   * Formats financial data into a system prompt for the LLM.
+   * Initialize the RAG harness and ingest dashboard data.
+   */
+  async initRAG(data: DashboardData): Promise<void> {
+    await ragHarness.init();
+    await ragHarness.ingest(data);
+  }
+
+  /**
+   * Get RAG context for a query.
+   */
+  getRAGContext(query: string): RAGContext {
+    return ragHarness.retrieve(query);
+  }
+
+  /**
+   * Get RAG status info.
+   */
+  getRAGStatus(): { ready: boolean; totalChunks: number } {
+    return {
+      ready: ragHarness.isReady,
+      totalChunks: ragHarness.totalChunks,
+    };
+  }
+
+  /**
+   * Formats financial data into a system prompt for the LLM (fallback when RAG not available).
    */
   formatFinancialContext(data: DashboardData | null): string | undefined {
     if (!data) return undefined;
@@ -107,6 +133,7 @@ class WebLLMServiceImpl {
 
   /**
    * Send a chat message and get a streaming response.
+   * Uses RAG context engineering when data is available.
    * Returns an async iterable of chunks.
    */
   async *sendMessageStream({
@@ -124,8 +151,15 @@ class WebLLMServiceImpl {
 
     const messages: ChatCompletionMessageParam[] = [];
 
-    if (systemContext && systemContext.trim() !== '') {
-      messages.push({ role: 'system', content: systemContext });
+    // Use RAG context if available, otherwise fall back to raw context
+    let finalContext = systemContext;
+    if (ragHarness.isReady) {
+      const ragResult = ragHarness.retrieve(message);
+      finalContext = ragResult.prompt;
+    }
+
+    if (finalContext && finalContext.trim() !== '') {
+      messages.push({ role: 'system', content: finalContext });
     }
 
     if (conversationHistory && conversationHistory.length > 0) {
@@ -156,6 +190,7 @@ class WebLLMServiceImpl {
 
   /**
    * Send a chat message and get a complete response (non-streaming).
+   * Uses RAG context engineering when data is available.
    */
   async sendMessage({
     message,
@@ -172,8 +207,15 @@ class WebLLMServiceImpl {
 
     const messages: ChatCompletionMessageParam[] = [];
 
-    if (systemContext && systemContext.trim() !== '') {
-      messages.push({ role: 'system', content: systemContext });
+    // Use RAG context if available, otherwise fall back to raw context
+    let finalContext = systemContext;
+    if (ragHarness.isReady) {
+      const ragResult = ragHarness.retrieve(message);
+      finalContext = ragResult.prompt;
+    }
+
+    if (finalContext && finalContext.trim() !== '') {
+      messages.push({ role: 'system', content: finalContext });
     }
 
     if (conversationHistory && conversationHistory.length > 0) {

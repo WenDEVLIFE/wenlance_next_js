@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Bot, Trash2, AlertCircle, X, MessageSquare, Send, User, Download, Cpu, ChevronDown, WifiOff } from 'lucide-react';
+import { Bot, Trash2, AlertCircle, X, MessageSquare, Send, User, Download, Cpu, ChevronDown, WifiOff, Database } from 'lucide-react';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PageTransition } from '@/components/PageTransition';
 import { dashboardRepository, DashboardData } from '@/lib/repositories/DashboardRepository';
 import { webLLMService, AVAILABLE_MODELS, ModelOption } from '@/lib/services/WebLLMService';
+import { ragHarness, RAGContext } from '@/lib/ai/RAGHarness';
 import AppColors from '@/lib/utils/colors';
 
 type ViewState = 'select' | 'loading' | 'ready';
@@ -14,6 +15,7 @@ type ViewState = 'select' | 'loading' | 'ready';
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  ragContext?: RAGContext;
 }
 
 export default function AIAssistantView() {
@@ -30,10 +32,18 @@ export default function AIAssistantView() {
   const streamRef = useRef<boolean>(false);
 
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [ragStatus, setRagStatus] = useState({ ready: false, totalChunks: 0 });
 
   useEffect(() => {
-    const unsubscribe = dashboardRepository.listenToDashboard((data) => {
+    const unsubscribe = dashboardRepository.listenToDashboard(async (data) => {
       setDashboardData(data);
+      // Initialize RAG with the latest data
+      try {
+        await webLLMService.initRAG(data);
+        setRagStatus(webLLMService.getRAGStatus());
+      } catch (err) {
+        console.error('RAG init error:', err);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -74,6 +84,9 @@ export default function AIAssistantView() {
   const handleSend = useCallback(async () => {
     if (!inputText.trim() || isLoading || viewState !== 'ready') return;
 
+    // Get RAG context for this query
+    const ragContext = ragHarness.retrieve(inputText.trim());
+
     const userMessage: ChatMessage = { role: 'user', content: inputText.trim() };
     setMessages((prev) => [...prev, userMessage]);
     setInputText('');
@@ -88,7 +101,7 @@ export default function AIAssistantView() {
       }));
 
       let assistantContent = '';
-      const assistantMessage: ChatMessage = { role: 'assistant', content: '' };
+      const assistantMessage: ChatMessage = { role: 'assistant', content: '', ragContext };
       setMessages((prev) => [...prev, assistantMessage]);
 
       for await (const chunk of webLLMService.sendMessageStream({
@@ -100,7 +113,7 @@ export default function AIAssistantView() {
         assistantContent += chunk;
         setMessages((prev) => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: 'assistant', content: assistantContent };
+          updated[updated.length - 1] = { role: 'assistant', content: assistantContent, ragContext };
           return updated;
         });
       }
@@ -154,6 +167,7 @@ export default function AIAssistantView() {
                     : viewState === 'loading'
                     ? 'Loading model...'
                     : 'Runs locally in your browser'}
+                  {ragStatus.ready && ` · ${ragStatus.totalChunks} chunks indexed`}
                 </span>
               </div>
             </div>
@@ -299,9 +313,17 @@ export default function AIAssistantView() {
                 <h2 className="text-xl font-semibold text-zinc-700 dark:text-zinc-300 font-sans mb-2">
                   Start a conversation
                 </h2>
-                <p className="text-sm text-zinc-500 dark:text-zinc-500 font-sans">
+                <p className="text-sm text-zinc-500 dark:text-zinc-500 font-sans mb-4">
                   Ask anything — the AI runs locally on your device
                 </p>
+                {ragStatus.ready && (
+                  <div className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
+                    <p className="text-xs text-blue-600 dark:text-blue-400 font-sans flex items-center gap-1.5">
+                      <Database size={12} />
+                      {ragStatus.totalChunks} data chunks indexed for smart retrieval
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex flex-col gap-6 pb-4">
@@ -335,6 +357,13 @@ export default function AIAssistantView() {
                           ))}
                         </div>
                       </div>
+                      {/* RAG Context Indicator */}
+                      {!isUser && msg.ragContext && msg.ragContext.chunks.length > 0 && (
+                        <div className="mt-1.5 ml-11 flex items-center gap-1.5 text-[10px] text-zinc-400 dark:text-zinc-500">
+                          <Database size={10} />
+                          <span>{msg.ragContext.dataSummary}</span>
+                        </div>
+                      )}
                     </AnimatedListItem>
                   );
                 })}
