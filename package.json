@@ -11,6 +11,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@mlc-ai/web-llm": "^0.2.84",
     "firebase": "^12.10.0",
     "framer-motion": "^12.35.2",
     "lucide-react": "^0.577.0",

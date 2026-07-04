@@ -5,7 +5,7 @@ import { Clock } from 'lucide-react';
 import { AnimatedDialog } from './AnimatedDialog';
 import { CustomTextField } from './CustomTextField';
 import { CustomText } from './CustomText';
-import { TaskModel, TaskFrequency, DayOfWeek, DAYS_OF_WEEK } from '@/app/model/TaskModel';
+import { TaskModel, TaskFrequency, DayOfWeek, DAYS_OF_WEEK, RepeatUnit } from '@/app/model/TaskModel';
 
 interface AddTaskDialogProps {
   isOpen: boolean;
@@ -33,6 +33,9 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
   });
   const [frequency, setFrequency] = useState<TaskFrequency>('everyday');
   const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>([]);
+  const [repeatMode, setRepeatMode] = useState<'never' | 'custom'>('never');
+  const [repeatValue, setRepeatValue] = useState<number>(1);
+  const [repeatUnit, setRepeatUnit] = useState<RepeatUnit>('hours');
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -41,12 +44,29 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
       setAlarmTime(taskToEdit.alarmTime);
       setFrequency(taskToEdit.frequency);
       setSelectedDays(taskToEdit.customDays ?? []);
+      if (taskToEdit.repeatInterval && taskToEdit.repeatInterval > 0) {
+        setRepeatMode('custom');
+        if (taskToEdit.repeatUnit === 'hours') {
+          setRepeatValue(taskToEdit.repeatInterval);
+          setRepeatUnit('hours');
+        } else {
+          setRepeatValue(taskToEdit.repeatInterval);
+          setRepeatUnit('minutes');
+        }
+      } else {
+        setRepeatMode('never');
+        setRepeatValue(1);
+        setRepeatUnit('hours');
+      }
     } else {
       setName('');
       const d = new Date();
       setAlarmTime(`${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`);
       setFrequency('everyday');
       setSelectedDays([]);
+      setRepeatMode('never');
+      setRepeatValue(1);
+      setRepeatUnit('hours');
     }
   }, [taskToEdit, isOpen]);
 
@@ -81,6 +101,8 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
       frequency,
       enabled: taskToEdit?.enabled ?? true,
       lastTriggeredDate: taskToEdit?.lastTriggeredDate,
+      repeatInterval: repeatMode === 'custom' ? repeatValue : 0,
+      repeatUnit: repeatMode === 'custom' ? repeatUnit : 'minutes',
       customDays: frequency === 'custom' ? selectedDays : undefined,
       createdAt: taskToEdit?.createdAt ?? new Date(),
     };
@@ -162,6 +184,83 @@ export const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <CustomText
+              label="Repeat Interval"
+              fontWeight={600}
+              fontSize={14}
+              className="transition-colors"
+            />
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setRepeatMode('never')}
+                className={`
+                  flex-1 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer border
+                  ${repeatMode === 'never'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                    : 'bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-200'
+                  }
+                `}
+              >
+                Never
+              </button>
+              <button
+                type="button"
+                onClick={() => setRepeatMode('custom')}
+                className={`
+                  flex-1 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer border
+                  ${repeatMode === 'custom'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                    : 'bg-zinc-100 text-zinc-600 border-zinc-200 hover:bg-zinc-200'
+                  }
+                `}
+              >
+                Custom
+              </button>
+            </div>
+            {repeatMode === 'custom' && (
+              <div className="flex gap-2 items-center mt-1">
+                <span className="text-sm text-zinc-600 dark:text-zinc-300">Every</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="999"
+                  value={repeatValue}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    if (!isNaN(val) && val > 0) setRepeatValue(val);
+                  }}
+                  className="w-20 px-3 py-2 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white text-center text-sm font-semibold outline-none focus:border-blue-500 transition-colors"
+                />
+                <div className="flex rounded-xl border border-zinc-300 dark:border-zinc-600 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setRepeatUnit('minutes')}
+                    className={`px-3 py-2 text-sm font-semibold transition-all cursor-pointer ${
+                      repeatUnit === 'minutes'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300'
+                    }`}
+                  >
+                    min
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRepeatUnit('hours')}
+                    className={`px-3 py-2 text-sm font-semibold transition-all cursor-pointer ${
+                      repeatUnit === 'hours'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300'
+                    }`}
+                  >
+                    hrs
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {frequency === 'custom' && (

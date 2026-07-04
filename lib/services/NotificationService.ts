@@ -1,4 +1,4 @@
-import { TaskModel, getTodayDayOfWeek } from '@/app/model/TaskModel';
+import { TaskModel, getTodayDayOfWeek, getRepeatIntervalMinutes } from '@/app/model/TaskModel';
 import taskRepository from '@/lib/repositories/TaskRepository';
 
 export type AlarmCallback = (task: TaskModel) => void;
@@ -8,6 +8,7 @@ class NotificationService {
   private allTasks: TaskModel[] = [];
   private unsubscribe: (() => void) | null = null;
   private notifiedTaskIds: Set<string> = new Set();
+  private repeatTimeouts: Map<string, ReturnType<typeof setTimeout>> = new Map();
   private started = false;
   private listeners: AlarmCallback[] = [];
 
@@ -46,6 +47,8 @@ class NotificationService {
       this.unsubscribe();
       this.unsubscribe = null;
     }
+    this.repeatTimeouts.forEach(timeout => clearTimeout(timeout));
+    this.repeatTimeouts.clear();
     this.allTasks = [];
     this.notifiedTaskIds.clear();
     this.listeners = [];
@@ -99,6 +102,25 @@ class NotificationService {
       taskRepository.updateTask(updatedTask);
     } catch (err) {
       console.error('Failed to update task after alarm:', err);
+    }
+
+    const repeatMinutes = getRepeatIntervalMinutes(task);
+    if (repeatMinutes > 0 && task.id) {
+      const existingTimeout = this.repeatTimeouts.get(task.id);
+      if (existingTimeout) clearTimeout(existingTimeout);
+
+      const timeoutMs = repeatMinutes * 60 * 1000;
+      const timeout = setTimeout(() => {
+        this.repeatTimeouts.delete(task.id!);
+        const taskStillEnabled = this.allTasks.find(t => t.id === task.id && t.enabled);
+        if (taskStillEnabled) {
+          const now = new Date();
+          const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+          const repeatKey = `${task.id}-${todayDate}-${currentTime}`;
+          this.fireAlarm(taskStillEnabled, repeatKey, todayDate);
+        }
+      }, timeoutMs);
+      this.repeatTimeouts.set(task.id, timeout);
     }
   }
 }

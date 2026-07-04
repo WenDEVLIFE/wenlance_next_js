@@ -9,7 +9,7 @@ import { AnimatedDialog } from '@/components/AnimatedDialog';
 import { AddTaskDialog } from '@/components/AddTaskDialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PageTransition } from '@/components/PageTransition';
-import { TaskModel } from '@/app/model/TaskModel';
+import { TaskModel, getRepeatIntervalMinutes } from '@/app/model/TaskModel';
 import { taskRepository } from '@/lib/repositories/TaskRepository';
 import AppColors from '@/lib/utils/colors';
 
@@ -19,6 +19,14 @@ function formatTime(time: string): string {
   const ampm = h >= 12 ? 'PM' : 'AM';
   const hour12 = h % 12 || 12;
   return `${hour12}:${String(m).padStart(2, '0')} ${ampm}`;
+}
+
+function formatRepeatInterval(task: TaskModel): string {
+  const minutes = getRepeatIntervalMinutes(task);
+  if (minutes <= 0) return '';
+  if (minutes < 60) return `Every ${minutes}m`;
+  const hrs = minutes / 60;
+  return hrs === 1 ? 'Every 1hr' : `Every ${hrs}hrs`;
 }
 
 export default function TasksView() {
@@ -184,6 +192,11 @@ export default function TasksView() {
                                     </span>
                                   ) : 'Once'}
                                 </span>
+                                {formatRepeatInterval(task) && (
+                                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                    {formatRepeatInterval(task)}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
