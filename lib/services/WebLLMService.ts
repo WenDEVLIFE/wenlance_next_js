@@ -1,4 +1,4 @@
-import { CreateMLCEngine, prebuiltAppConfig, MLCEngine, ChatCompletionChunk } from '@mlc-ai/web-llm';
+import { CreateMLCEngine, prebuiltAppConfig, MLCEngine, ChatCompletionChunk, hasModelInCache } from '@mlc-ai/web-llm';
 import type { ChatCompletionMessageParam } from '@mlc-ai/web-llm';
 import { DashboardData } from '../repositories/DashboardRepository';
 import { ragHarness, RAGContext } from '../ai/RAGHarness';
@@ -102,7 +102,18 @@ class WebLLMServiceImpl {
   }
 
   /**
-   * Load a model into the browser. Downloads on first use, cached after.
+   * Check if a model is already cached in the browser.
+   */
+  async isModelCached(modelId: string): Promise<boolean> {
+    try {
+      return await hasModelInCache(modelId);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Load a model into the browser. Downloads on first use, loads from cache after.
    */
   async loadModel(
     modelId: string,
@@ -117,6 +128,9 @@ class WebLLMServiceImpl {
       this.engine = null;
       this.loadedModelId = null;
     }
+
+    // Check if model is cached to show appropriate loading message
+    const isCached = await this.isModelCached(modelId);
 
     this.engine = new MLCEngine({
       initProgressCallback: (report) => {

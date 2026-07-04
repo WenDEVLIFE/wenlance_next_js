@@ -19,9 +19,18 @@ interface ChatMessage {
 }
 
 export default function AIAssistantView() {
-  const [viewState, setViewState] = useState<ViewState>('select');
-  const [selectedModel, setSelectedModel] = useState<ModelOption>(AVAILABLE_MODELS[0]);
+  const [viewState, setViewState] = useState<ViewState>(
+    webLLMService.isModelLoaded ? 'ready' : 'select'
+  );
+  const [selectedModel, setSelectedModel] = useState<ModelOption>(() => {
+    const current = webLLMService.currentModel;
+    if (current) {
+      return AVAILABLE_MODELS.find(m => m.id === current) || AVAILABLE_MODELS[0];
+    }
+    return AVAILABLE_MODELS[0];
+  });
   const [loadProgress, setLoadProgress] = useState({ text: '', progress: 0 });
+  const [isCached, setIsCached] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -65,8 +74,12 @@ export default function AIAssistantView() {
       return;
     }
 
+    // Check if model is already cached
+    const cached = await webLLMService.isModelCached(selectedModel.id);
+    setIsCached(cached);
+
     setViewState('loading');
-    setLoadProgress({ text: 'Preparing...', progress: 0 });
+    setLoadProgress({ text: cached ? 'Loading from cache...' : 'Preparing download...', progress: 0 });
     setError(null);
 
     try {
@@ -285,7 +298,9 @@ export default function AIAssistantView() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Loading {selectedModel.name}</h2>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">First download may take a few minutes</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {isCached ? 'Loading from cache...' : 'First download may take a few minutes'}
+                  </p>
                 </div>
               </div>
 
