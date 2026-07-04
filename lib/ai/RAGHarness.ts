@@ -95,10 +95,27 @@ class RAGHarnessImpl {
    */
   private buildContextPrompt(query: string, results: SearchResult[]): string {
     if (results.length === 0) {
-      return "You are a financial assistant for 'Wenlance'. No matching financial data found for this query. Answer based on general knowledge and ask for clarification if needed.";
+      return [
+        "You are a financial assistant for 'Wenlance'.",
+        "The user's question does not match any of their financial data.",
+        "Politely decline and redirect: 'I can only help with your financial data — expenses, sales, projects, and savings. Please ask about those topics.'",
+        "Do NOT answer unrelated questions (weather, recipes, coding, general knowledge, etc.).",
+      ].join(' ');
     }
 
-    let context = "You are a financial assistant for 'Wenlance'. Below is the RELEVANT data for the user's question. Use ONLY this data to answer. Be concise and specific.\n\n";
+    let context = [
+      "You are a financial assistant for 'Wenlance'.",
+      "RULES:",
+      "1. Answer ONLY based on the financial data provided below.",
+      "2. Do NOT make up numbers, estimates, or data not shown here.",
+      "3. If the data doesn't contain the answer, say 'I don't have that information in your financial records.'",
+      "4. Do NOT answer questions unrelated to finances, expenses, sales, projects, or savings.",
+      "5. For unrelated questions (weather, recipes, coding, general knowledge), respond: 'I can only help with your financial data — expenses, sales, projects, and savings.'",
+      "6. Be concise and specific. Use the actual numbers from the data.",
+      "",
+      "RELEVANT DATA:",
+      "",
+    ].join('\n');
 
     // Group by type for organized output
     const byType = new Map<string, SearchResult[]>();

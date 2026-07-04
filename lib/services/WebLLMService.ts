@@ -75,7 +75,19 @@ class WebLLMServiceImpl {
   formatFinancialContext(data: DashboardData | null): string | undefined {
     if (!data) return undefined;
 
-    let context = "You are a helpful financial assistant for 'Wenlance'. Here is the user's current project, financial and expense data:\n\n";
+    let context = [
+      "You are a financial assistant for 'Wenlance'.",
+      "RULES:",
+      "1. Answer ONLY based on the financial data provided below.",
+      "2. Do NOT make up numbers, estimates, or data not shown here.",
+      "3. If the data doesn't contain the answer, say 'I don't have that information in your financial records.'",
+      "4. Do NOT answer questions unrelated to finances, expenses, sales, projects, or savings.",
+      "5. For unrelated questions (weather, recipes, coding, general knowledge), respond: 'I can only help with your financial data — expenses, sales, projects, and savings.'",
+      "6. Be concise and specific. Use the actual numbers from the data.",
+      "",
+      "FINANCIAL DATA:",
+      "",
+    ].join('\n');
 
     context += 'PROJECTS:\n';
     data.projects.forEach(p => {
@@ -97,7 +109,6 @@ class WebLLMServiceImpl {
       context += `- ${s.title} (${s.category}): Target ${s.amount}\n`;
     });
 
-    context += '\nPlease use these ACTUAL numbers when the user asks about their finances. Be concise.';
     return context;
   }
 
