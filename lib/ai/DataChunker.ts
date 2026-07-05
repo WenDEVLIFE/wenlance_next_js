@@ -115,11 +115,32 @@ function summaryChunk(data: DashboardData): DataChunk {
   const totalSavings = data.savings.reduce((sum, s) => sum + s.amount, 0);
   const activeProjects = data.projects.filter(p => p.status !== 'Completed').length;
 
+  // Year-based salary breakdown
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const lastYear = currentYear - 1;
+  const yearBeforeLast = currentYear - 2;
+  const thisYearSales = data.sales.filter(s => s.dateReceived.getFullYear() === currentYear);
+  const lastYearSales = data.sales.filter(s => s.dateReceived.getFullYear() === lastYear);
+  const yearBeforeLastSales = data.sales.filter(s => s.dateReceived.getFullYear() === yearBeforeLast);
+  const thisYearSalary = thisYearSales.reduce((sum, s) => sum + s.amount, 0);
+  const lastYearSalary = lastYearSales.reduce((sum, s) => sum + s.amount, 0);
+  const yearBeforeLastSalary = yearBeforeLastSales.reduce((sum, s) => sum + s.amount, 0);
+
+  // List ALL project names (clear format for LLM)
+  const projectList = data.projects.map(p => {
+    const shortName = p.projectName.length > 18 ? p.projectName.substring(0, 18) + '..' : p.projectName;
+    return `${shortName} (${p.status})`;
+  }).join(', ');
+
   // Put counts FIRST so they're never truncated
   const text = [
-    `Projects: ${data.projects.length} total (${activeProjects} active, ${data.projects.length - activeProjects} completed)`,
+    `Projects: ${data.projects.length} total (${activeProjects} active, ${data.projects.length - activeProjects} completed). Names: ${projectList}`,
     `Expenses: ${data.expenses.length} items, total ${formatCurrency(totalExpenses)}`,
     `Sales: ${data.sales.length} sources, total ${formatCurrency(totalSales)}`,
+    `Salary ${currentYear}: ${formatCurrency(thisYearSalary)} from ${thisYearSales.length} sales`,
+    `Salary ${lastYear}: ${formatCurrency(lastYearSalary)} from ${lastYearSales.length} sales`,
+    `Salary ${yearBeforeLast}: ${formatCurrency(yearBeforeLastSalary)} from ${yearBeforeLastSales.length} sales`,
     `Savings: ${data.savings.length} accounts, target ${formatCurrency(totalSavings)}`,
     `Net balance: ${formatCurrency(totalSales - totalExpenses)}`,
   ].join('. ');

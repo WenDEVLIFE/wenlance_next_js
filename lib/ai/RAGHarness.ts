@@ -1,5 +1,5 @@
 import { DashboardData } from '../repositories/DashboardRepository';
-import { chunkDashboardData, DataChunk } from './DataChunker';
+import { chunkDashboardData, DataChunk, ChunkType } from './DataChunker';
 import { embeddingService } from './EmbeddingService';
 import { vectorStore, SearchResult } from './VectorStore';
 
@@ -142,11 +142,32 @@ class RAGHarnessImpl {
     const summaryChunk = results.find(r => r.chunk.type === 'summary');
     const otherChunks = results.filter(r => r.chunk.type !== 'summary');
 
+    // Detect "list all" or "all <type>" queries
+    // When user asks to list ALL items, exclude individual chunks of that type
+    // and rely on the summary (which contains the full list)
+    const lowerQuery = query.toLowerCase();
+    const isListAllQuery = /\b(list|all|every|each|show|give)\b/.test(lowerQuery) && 
+      /\b(project|projects|expense|expenses|sale|sales|saving|savings|name|names)\b/.test(lowerQuery);
+
+    let filteredChunks = otherChunks;
+    if (isListAllQuery) {
+      // Determine which type to filter out
+      const targetTypes: ChunkType[] = [];
+      if (/\b(project|projects|name|names)\b/.test(lowerQuery)) targetTypes.push('project');
+      if (/\b(expense|expenses)\b/.test(lowerQuery)) targetTypes.push('expense');
+      if (/\b(sale|sales)\b/.test(lowerQuery)) targetTypes.push('sale');
+      if (/\b(saving|savings)\b/.test(lowerQuery)) targetTypes.push('savings');
+      
+      if (targetTypes.length > 0) {
+        filteredChunks = otherChunks.filter(c => !targetTypes.includes(c.chunk.type));
+      }
+    }
+
     // Prioritize: summary first, then by score
     const finalChunks: SearchResult[] = [];
     if (summaryChunk) finalChunks.push(summaryChunk);
 
-    for (const chunk of otherChunks) {
+    for (const chunk of filteredChunks) {
       if (finalChunks.length >= topK + 1) break;
       if (!finalChunks.find(f => f.chunk.id === chunk.chunk.id)) {
         finalChunks.push(chunk);
@@ -180,7 +201,7 @@ class RAGHarnessImpl {
     }
 
     // Build compact context - keep it under ~2000 chars to fit in 4096 token window
-    let context = "Financial assistant for Wenlance. Answer ONLY from this data. Be brief.\n\n";
+    let context = "Financial assistant for Wenlance. Answer ONLY from this data. Be brief. When listing items, use bullet points (•) format.\n\n";
 
     // ALWAYS include summary first (has totals/counts)
     const summaryChunk = results.find(r => r.chunk.type === 'summary');
@@ -208,15 +229,17 @@ class RAGHarnessImpl {
       const label = typeLabels[type] || type.toUpperCase();
       context += `[${label}]\n`;
       for (const { chunk } of chunks) {
-        // Others truncated to 150 chars
-        const text = chunk.text.length > 150 ? chunk.text.substring(0, 150) + '...' : chunk.text;
+        // Summary has all project names, no truncation
+        // Others truncated to save space for the full project list
+        const maxLen = chunk.type === 'summary' ? 9999 : 120;
+        const text = chunk.text.length > maxLen ? chunk.text.substring(0, maxLen) + '...' : chunk.text;
         context += `${text}\n`;
       }
     }
 
-    // Hard limit: truncate entire context to ~2500 chars (~1000 tokens)
-    if (context.length > 2500) {
-      context = context.substring(0, 2500) + '...';
+    // Hard limit: truncate entire context to ~4000 chars (fits in 4096 token window)
+    if (context.length > 4000) {
+      context = context.substring(0, 4000) + '\n... (truncated)';
     }
 
     return context;

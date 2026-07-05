@@ -75,21 +75,41 @@ class WebLLMServiceImpl {
   formatFinancialContext(data: DashboardData | null): string | undefined {
     if (!data) return undefined;
 
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const lastYear = currentYear - 1;
+    const yearBeforeLast = currentYear - 2;
+    const thisYearSales = data.sales.filter(s => s.dateReceived.getFullYear() === currentYear);
+    const lastYearSales = data.sales.filter(s => s.dateReceived.getFullYear() === lastYear);
+    const yearBeforeLastSales = data.sales.filter(s => s.dateReceived.getFullYear() === yearBeforeLast);
+    const thisYearSalary = thisYearSales.reduce((sum, s) => sum + s.amount, 0);
+    const lastYearSalary = lastYearSales.reduce((sum, s) => sum + s.amount, 0);
+    const yearBeforeLastSalary = yearBeforeLastSales.reduce((sum, s) => sum + s.amount, 0);
+
     // Compact format to fit in small context windows (4096 tokens)
-    let context = "Financial assistant for Wenlance. Answer ONLY from this data. Be brief.\n\n";
+    let context = "Financial assistant for Wenlance. Answer ONLY from this data. Be brief. When listing items, use bullet points (•) format.\n\n";
+
+    // Salary summary first (most common question)
+    const fmt = (n: number) => `₱${n.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    context += `[SALARY SUMMARY]\n`;
+    context += `- ${currentYear}: ${fmt(thisYearSalary)} from ${thisYearSales.length} sales\n`;
+    context += `- ${lastYear}: ${fmt(lastYearSalary)} from ${lastYearSales.length} sales\n`;
+    context += `- ${yearBeforeLast}: ${fmt(yearBeforeLastSalary)} from ${yearBeforeLastSales.length} sales\n\n`;
 
     if (data.projects.length > 0) {
       context += '[PROJECTS]\n';
-      data.projects.forEach(p => {
-        context += `- ${p.projectName} (${p.status})\n`;
+      // List all project names compactly
+      const projectNames = data.projects.map(p => {
+        const name = p.projectName.length > 18 ? p.projectName.substring(0, 18) + '..' : p.projectName;
+        return `${name} (${p.status})`;
       });
-      context += '\n';
+      context += `${data.projects.length} total: ${projectNames.join(', ')}\n\n`;
     }
 
     if (data.sales.length > 0) {
       context += '[SALES]\n';
       data.sales.forEach(s => {
-        context += `- ${s.title}: ₱${s.amount.toLocaleString()} on ${s.dateReceived.toLocaleDateString()}\n`;
+        context += `• ${s.title}: ₱${s.amount.toLocaleString()} (${s.dateReceived.toLocaleDateString()})\n`;
       });
       context += '\n';
     }
@@ -97,7 +117,7 @@ class WebLLMServiceImpl {
     if (data.expenses.length > 0) {
       context += '[EXPENSES]\n';
       data.expenses.forEach(e => {
-        context += `- ${e.title}: ₱${e.amount.toLocaleString()} on ${e.date.toLocaleDateString()}\n`;
+        context += `• ${e.title}: ₱${e.amount.toLocaleString()} (${e.date.toLocaleDateString()})\n`;
       });
       context += '\n';
     }
@@ -105,13 +125,13 @@ class WebLLMServiceImpl {
     if (data.savings.length > 0) {
       context += '[SAVINGS]\n';
       data.savings.forEach(s => {
-        context += `- ${s.title}: ₱${s.amount.toLocaleString()}\n`;
+        context += `• ${s.title}: ₱${s.amount.toLocaleString()}\n`;
       });
     }
 
-    // Hard limit: truncate to ~2500 chars
-    if (context.length > 2500) {
-      context = context.substring(0, 2500) + '...';
+    // Hard limit: truncate to ~4000 chars (fits in 4096 token window)
+    if (context.length > 4000) {
+      context = context.substring(0, 4000) + '\n... (truncated)';
     }
 
     return context;
