@@ -136,7 +136,7 @@ class RAGHarnessImpl {
     }
 
     const queryEmbedding = embeddingService.embed(query);
-    const results = vectorStore.search(queryEmbedding, topK);
+    const results = vectorStore.search(queryEmbedding, topK + 1);
 
     // Always include summary chunk if available
     const summaryChunk = results.find(r => r.chunk.type === 'summary');
@@ -147,7 +147,7 @@ class RAGHarnessImpl {
     if (summaryChunk) finalChunks.push(summaryChunk);
 
     for (const chunk of otherChunks) {
-      if (finalChunks.length >= topK) break;
+      if (finalChunks.length >= topK + 1) break;
       if (!finalChunks.find(f => f.chunk.id === chunk.chunk.id)) {
         finalChunks.push(chunk);
       }
@@ -182,16 +182,22 @@ class RAGHarnessImpl {
     // Build compact context - keep it under ~2000 chars to fit in 4096 token window
     let context = "Financial assistant for Wenlance. Answer ONLY from this data. Be brief.\n\n";
 
-    // Group by type
+    // ALWAYS include summary first (has totals/counts)
+    const summaryChunk = results.find(r => r.chunk.type === 'summary');
+    if (summaryChunk) {
+      context += `[OVERVIEW]\n${summaryChunk.chunk.text}\n`;
+    }
+
+    // Group non-summary chunks by type
     const byType = new Map<string, SearchResult[]>();
     for (const result of results) {
+      if (result.chunk.type === 'summary') continue;
       const type = result.chunk.type;
       if (!byType.has(type)) byType.set(type, []);
       byType.get(type)!.push(result);
     }
 
     const typeLabels: Record<string, string> = {
-      summary: 'OVERVIEW',
       expense: 'EXPENSES',
       sale: 'SALES',
       project: 'PROJECTS',
@@ -202,9 +208,8 @@ class RAGHarnessImpl {
       const label = typeLabels[type] || type.toUpperCase();
       context += `[${label}]\n`;
       for (const { chunk } of chunks) {
-        // Summary gets full text, others truncated to 150 chars
-        const maxLen = chunk.type === 'summary' ? 400 : 150;
-        const text = chunk.text.length > maxLen ? chunk.text.substring(0, maxLen) + '...' : chunk.text;
+        // Others truncated to 150 chars
+        const text = chunk.text.length > 150 ? chunk.text.substring(0, 150) + '...' : chunk.text;
         context += `${text}\n`;
       }
     }
