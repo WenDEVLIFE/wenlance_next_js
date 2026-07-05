@@ -202,8 +202,9 @@ class RAGHarnessImpl {
       const label = typeLabels[type] || type.toUpperCase();
       context += `[${label}]\n`;
       for (const { chunk } of chunks) {
-        // Truncate each chunk to max 150 chars
-        const text = chunk.text.length > 150 ? chunk.text.substring(0, 150) + '...' : chunk.text;
+        // Summary gets full text, others truncated to 150 chars
+        const maxLen = chunk.type === 'summary' ? 400 : 150;
+        const text = chunk.text.length > maxLen ? chunk.text.substring(0, maxLen) + '...' : chunk.text;
         context += `${text}\n`;
       }
     }

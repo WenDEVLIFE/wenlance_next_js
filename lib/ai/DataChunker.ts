@@ -115,12 +115,12 @@ function summaryChunk(data: DashboardData): DataChunk {
   const totalSavings = data.savings.reduce((sum, s) => sum + s.amount, 0);
   const activeProjects = data.projects.filter(p => p.status !== 'Completed').length;
 
+  // Put counts FIRST so they're never truncated
   const text = [
-    `Financial Summary for Wenlance`,
-    `Total expenses: ${formatCurrency(totalExpenses)} across ${data.expenses.length} items`,
-    `Total sales/salary: ${formatCurrency(totalSales)} from ${data.sales.length} sources`,
-    `Total savings target: ${formatCurrency(totalSavings)} across ${data.savings.length} accounts`,
-    `Active projects: ${activeProjects} out of ${data.projects.length} total`,
+    `Projects: ${data.projects.length} total (${activeProjects} active, ${data.projects.length - activeProjects} completed)`,
+    `Expenses: ${data.expenses.length} items, total ${formatCurrency(totalExpenses)}`,
+    `Sales: ${data.sales.length} sources, total ${formatCurrency(totalSales)}`,
+    `Savings: ${data.savings.length} accounts, target ${formatCurrency(totalSavings)}`,
     `Net balance: ${formatCurrency(totalSales - totalExpenses)}`,
   ].join('. ');
 
