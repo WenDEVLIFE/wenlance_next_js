@@ -45,7 +45,7 @@ export const MonthlySalaryLineChart: React.FC<MonthlySalaryLineChartProps> = ({ 
     >
       <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Earnings breakdown per month</p>
 
-      <div className="h-[360px] w-full mb-6">
+      <div className="h-64 w-full mb-8">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888822" />

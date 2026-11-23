@@ -161,7 +161,7 @@ export const SalaryLineChart: React.FC<SalaryLineChartProps> = ({ sales }) => {
         </ResponsiveContainer>
       </div>
 
-      <div className="flex items-center justify-around pt-4 border-t border-zinc-200 dark:border-zinc-800">
+      <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 grid grid-cols-3 gap-4 text-center">
         <StatItem label="Total Years" value={stats.totalYears.toString()} />
         <StatItem label="Highest Year" value={stats.highestYear} />
         <StatItem label="Total Earned" value={formatCurrency(stats.totalEarned)} isPrimary />
@@ -171,11 +171,11 @@ export const SalaryLineChart: React.FC<SalaryLineChartProps> = ({ sales }) => {
 };
 
 const StatItem = ({ label, value, isPrimary }: { label: string; value: string; isPrimary?: boolean }) => (
-  <div className="flex flex-col items-center">
-    <span className={`text-base font-semibold tabular-nums ${isPrimary ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
+  <div>
+    <p className={`text-base font-semibold tabular-nums ${isPrimary ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
       {value}
-    </span>
-    <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{label}</span>
+    </p>
+    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">{label}</p>
   </div>
 );
 

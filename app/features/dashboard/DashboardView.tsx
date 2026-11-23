@@ -244,28 +244,26 @@ export default function DashboardPage() {
               </div>
             </AnimatedListItem>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              <AnimatedListItem index={10}>
-                <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 shadow-xs">
-                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-                    Salary Trend
-                  </h3>
-                  <SalaryLineChart sales={data.sales.map(s => ({
-                    dateReceived: s.dateReceived,
-                    amount: s.amount
-                  }))} />
-                </div>
-              </AnimatedListItem>
+            <AnimatedListItem index={10}>
+              <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 shadow-xs">
+                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+                  Salary Trend
+                </h3>
+                <SalaryLineChart sales={data.sales.map(s => ({
+                  dateReceived: s.dateReceived,
+                  amount: s.amount
+                }))} />
+              </div>
+            </AnimatedListItem>
 
-              <AnimatedListItem index={11}>
-                <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 shadow-xs">
-                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-                    Monthly Overview
-                  </h3>
-                  <MonthlySalaryLineChart data={monthlySalaryData} />
-                </div>
-              </AnimatedListItem>
-            </div>
+            <AnimatedListItem index={11}>
+              <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 shadow-xs">
+                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+                  Monthly Overview
+                </h3>
+                <MonthlySalaryLineChart data={monthlySalaryData} />
+              </div>
+            </AnimatedListItem>
 
             <AnimatedListItem index={12}>
               <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 shadow-xs">
