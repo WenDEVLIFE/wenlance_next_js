@@ -1,7 +1,20 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Bot, Trash2, AlertCircle, X, MessageSquare, Send, User, Cpu, WifiOff, Database, Zap, ArrowUp, ChevronDown, Check } from 'lucide-react';
+import { 
+  BotIcon, 
+  TrashBinTrashIcon, 
+  DangerCircleIcon, 
+  CloseCircleIcon, 
+  UserIcon, 
+  CpuIcon, 
+  WiFiOffIcon, 
+  DatabaseIcon, 
+  BoltIcon, 
+  ArrowUpIcon, 
+  AltArrowDownIcon, 
+  CheckIcon 
+} from '@solar-icons/react/linear';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PageTransition } from '@/components/PageTransition';
@@ -151,26 +164,25 @@ export default function AIAssistantView() {
 
   return (
     <PageTransition>
-      <div className="flex flex-col h-[100dvh] bg-zinc-50 dark:bg-[#03045E] transition-colors duration-300">
+      <div className="flex flex-col h-[100dvh] bg-background transition-colors duration-300">
 
         {/* Header */}
-        <div className="flex-none bg-white dark:bg-[#023E8A] shadow-sm z-20 border-b border-zinc-100 dark:border-white/10 transition-colors safe-area-top">
+        <div className="flex-none bg-white dark:bg-zinc-900 shadow-xs z-20 border-b border-zinc-200/80 dark:border-zinc-800 transition-colors safe-area-top">
           <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="p-2 sm:p-2.5 bg-blue-100 dark:bg-white/10 rounded-xl">
-                <Bot size={20} className="text-blue-600 dark:text-[#48CAE4] sm:hidden" />
-                <Bot size={24} className="text-blue-600 dark:text-[#48CAE4] hidden sm:block" />
+              <div className="p-2 sm:p-2.5 bg-sky-50 dark:bg-sky-500/10 border border-sky-500/20 rounded-xl">
+                <BotIcon size={22} className="text-sky-600 dark:text-sky-400" />
               </div>
               <div className="flex flex-col">
-                <h1 className="text-base sm:text-xl font-bold text-zinc-900 dark:text-white font-sans">
-                  AI Assistant
+                <h1 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 font-sans">
+                  AI Financial Assistant
                 </h1>
-                <span className="text-[10px] sm:text-xs text-zinc-500 dark:text-white/70 font-sans">
+                <span className="text-[11px] text-zinc-500 dark:text-zinc-400 font-sans">
                   {isModelReady
-                    ? `${selectedModel.name} · ${ragStatus.totalChunks} chunks`
+                    ? `${selectedModel.name} · ${ragStatus.totalChunks} chunks indexed`
                     : isModelLoading
                     ? `Loading ${selectedModel.name}...`
-                    : 'Select a model to start'}
+                    : 'Local WebGPU model · Private on-device'}
                 </span>
               </div>
             </div>
@@ -179,13 +191,13 @@ export default function AIAssistantView() {
               {isModelReady && messages.length > 0 && (
                 <button
                   onClick={() => setMessages([])}
-                  className="p-2 rounded-full text-zinc-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                  className="p-2 rounded-xl text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all cursor-pointer"
                   title="Clear chat"
                 >
-                  <Trash2 size={18} />
+                  <TrashBinTrashIcon size={18} />
                 </button>
               )}
-              <div className="bg-zinc-100 dark:bg-white/10 p-1 rounded-full">
+              <div className="p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/80">
                 <ThemeToggle iconSize={18} />
               </div>
             </div>
@@ -194,43 +206,43 @@ export default function AIAssistantView() {
 
         {/* Error Banner */}
         {error && (
-          <div className="mx-4 mt-3 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-lg flex items-center justify-between z-10">
-            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-              <AlertCircle size={16} className="flex-shrink-0" />
+          <div className="mx-4 mt-3 p-3 bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 rounded-xl flex items-center justify-between z-10">
+            <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
+              <DangerCircleIcon size={16} className="shrink-0" />
               <span className="text-xs sm:text-sm font-medium font-sans">{error}</span>
             </div>
-            <button onClick={() => setError(null)} className="p-1 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-full text-red-500">
-              <X size={14} />
+            <button onClick={() => setError(null)} className="p-1 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-lg text-rose-500">
+              <CloseCircleIcon size={16} />
             </button>
           </div>
         )}
 
         {/* WebGPU Warning */}
         {!webGPUSupported && (
-          <div className="mx-4 mt-3 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-lg flex gap-3 z-10">
-            <WifiOff className="text-amber-500 flex-shrink-0" size={20} />
+          <div className="mx-4 mt-3 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-xl flex gap-3 z-10">
+            <WiFiOffIcon className="text-amber-500 shrink-0" size={20} />
             <div className="flex flex-col text-sm text-amber-700 dark:text-amber-400 font-sans">
               <strong>WebGPU Not Supported</strong>
-              <p className="text-xs mt-1">Please use Chrome 113+ or Edge 113+ to run local AI models.</p>
+              <p className="text-xs mt-1">Please use Chrome 113+ or Edge 113+ to run on-device AI models.</p>
             </div>
           </div>
         )}
 
         {/* Loading Overlay */}
         {isModelLoading && (
-          <div className="mx-4 mt-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 rounded-lg z-10">
+          <div className="mx-4 mt-3 p-4 bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/50 rounded-xl z-10">
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-1.5 bg-blue-100 dark:bg-blue-800/30 rounded-lg animate-pulse">
-                <Cpu size={16} className="text-blue-600 dark:text-[#48CAE4]" />
+              <div className="p-1.5 bg-sky-100 dark:bg-sky-900/30 rounded-lg animate-pulse">
+                <CpuIcon size={16} className="text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-300">Loading {selectedModel.name}</p>
-                <p className="text-[10px] text-blue-500 dark:text-blue-400">{loadProgress.text || 'Preparing...'}</p>
+                <p className="text-xs sm:text-sm font-semibold text-sky-700 dark:text-sky-300">Loading {selectedModel.name}</p>
+                <p className="text-[10px] text-sky-500 dark:text-sky-400">{loadProgress.text || 'Preparing model weights...'}</p>
               </div>
             </div>
-            <div className="w-full bg-blue-100 dark:bg-blue-800/30 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-sky-100 dark:bg-sky-900/30 rounded-full h-1.5 overflow-hidden">
               <div
-                className="h-full bg-blue-600 dark:bg-[#48CAE4] rounded-full transition-all duration-300"
+                className="h-full bg-sky-600 dark:bg-sky-400 rounded-full transition-all duration-300"
                 style={{ width: `${Math.max(loadProgress.progress * 100, 2)}%` }}
               />
             </div>
@@ -241,52 +253,51 @@ export default function AIAssistantView() {
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-6 scroll-smooth">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center mb-4 sm:mb-6">
-                <Bot size={32} className="text-blue-600 dark:text-[#48CAE4] sm:hidden" />
-                <Bot size={40} className="text-blue-600 dark:text-[#48CAE4] hidden sm:block" />
+              <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-center mb-4">
+                <BotIcon size={32} className="text-zinc-400 dark:text-zinc-500" />
               </div>
-              <h2 className="text-lg sm:text-xl font-semibold text-zinc-700 dark:text-zinc-300 font-sans mb-2">
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 font-sans mb-1">
                 Ask about your finances
               </h2>
-              <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-500 font-sans mb-4">
-                Expenses, sales, projects, and savings
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 font-sans mb-4">
+                Inquire about expenses, project timelines, and savings utilization
               </p>
               {!isModelReady && webGPUSupported && (
-                <p className="text-[10px] sm:text-xs text-zinc-400 dark:text-zinc-500 font-sans">
-                  Pick a model below to get started
+                <p className="text-xs text-sky-600 dark:text-sky-400 font-medium">
+                  Select a model below to load on-device
                 </p>
               )}
               {isModelReady && ragStatus.ready && (
-                <div className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full border border-blue-100 dark:border-blue-800/30">
-                  <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 font-sans flex items-center gap-1.5">
-                    <Database size={10} />
+                <div className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200/60 dark:border-zinc-700/60">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 font-mono flex items-center gap-1.5">
+                    <DatabaseIcon size={12} />
                     {ragStatus.totalChunks} chunks indexed
                   </p>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex flex-col gap-4 sm:gap-6 pb-4">
+            <div className="flex flex-col gap-4 sm:gap-5 pb-4 max-w-3xl mx-auto">
               {messages.map((msg, idx) => {
                 const isUser = msg.role === 'user';
                 return (
                   <AnimatedListItem key={idx} index={idx} delay={0.05} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                     <div className={`flex items-start max-w-[90%] sm:max-w-[85%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-                      <div className={`flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${isUser
-                        ? 'bg-blue-100 dark:bg-blue-900/30 ml-2 sm:ml-3'
-                        : 'bg-blue-100 dark:bg-white/10 mr-2 sm:mr-3'
+                      <div className={`shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center ${isUser
+                        ? 'bg-sky-500/10 text-sky-600 dark:text-sky-400 ml-2 sm:ml-3 border border-sky-500/20'
+                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 mr-2 sm:mr-3 border border-zinc-200/60 dark:border-zinc-700/60'
                         }`}>
                         {isUser
-                          ? <User size={14} className="text-blue-600 dark:text-[#48CAE4]" />
-                          : <Bot size={14} className="text-blue-600 dark:text-[#48CAE4]" />
+                          ? <UserIcon size={16} />
+                          : <BotIcon size={16} />
                         }
                       </div>
 
                       <div className={`
-                        px-3 py-2.5 sm:px-4 sm:py-3 rounded-2xl font-sans text-[13px] sm:text-[15px] leading-relaxed
+                        px-4 py-3 rounded-2xl font-sans text-sm leading-relaxed
                         ${isUser
-                          ? 'bg-blue-600 text-white rounded-tr-sm'
-                          : 'bg-white dark:bg-[#023E8A] text-zinc-800 dark:text-white rounded-tl-sm border border-zinc-100 dark:border-white/10 shadow-sm'
+                          ? 'bg-sky-600 text-white rounded-tr-xs'
+                          : 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 rounded-tl-xs border border-zinc-200/80 dark:border-zinc-800 shadow-xs'
                         }
                       `}>
                         {msg.content.split('\n').map((line, i) => (
@@ -298,8 +309,8 @@ export default function AIAssistantView() {
                       </div>
                     </div>
                     {!isUser && msg.ragContext && msg.ragContext.chunks.length > 0 && (
-                      <div className="mt-1 ml-9 sm:ml-11 flex items-center gap-1.5 text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500">
-                        <Database size={8} />
+                      <div className="mt-1 ml-9 sm:ml-11 flex items-center gap-1.5 text-[10px] font-mono text-zinc-400 dark:text-zinc-500">
+                        <DatabaseIcon size={10} />
                         <span>{msg.ragContext.dataSummary}</span>
                       </div>
                     )}
@@ -310,13 +321,13 @@ export default function AIAssistantView() {
               {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
                 <AnimatedListItem index={messages.length} delay={0.05} className="flex justify-start">
                   <div className="flex items-start max-w-[90%] sm:max-w-[85%] flex-row">
-                    <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-100 dark:bg-white/10 mr-2 sm:mr-3 flex items-center justify-center">
-                      <Bot size={14} className="text-blue-600 dark:text-[#48CAE4]" />
+                    <div className="shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 mr-2 sm:mr-3 border border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-center">
+                      <BotIcon size={16} />
                     </div>
-                    <div className="px-4 py-3.5 rounded-2xl bg-white dark:bg-[#023E8A] rounded-tl-sm border border-zinc-100 dark:border-white/10 shadow-sm flex items-center gap-2 text-zinc-600 dark:text-zinc-300">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                    <div className="px-4 py-3 rounded-2xl bg-white dark:bg-zinc-900 rounded-tl-xs border border-zinc-200/80 dark:border-zinc-800 shadow-xs flex items-center gap-2 text-zinc-500">
+                      <div className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-1.5 h-1.5 bg-sky-500 rounded-full animate-bounce"></div>
                     </div>
                   </div>
                 </AnimatedListItem>
@@ -326,13 +337,13 @@ export default function AIAssistantView() {
         </div>
 
         {/* Input Area with Model Picker */}
-        <div className="flex-none bg-white dark:bg-[#023E8A] border-t border-zinc-100 dark:border-white/10 transition-colors safe-area-bottom">
+        <div className="flex-none bg-white dark:bg-zinc-900 border-t border-zinc-200/80 dark:border-zinc-800 transition-colors safe-area-bottom">
           {/* Model Picker Dropdown */}
           {showModelPicker && (
-            <div className="px-3 sm:px-4 pt-3 sm:pt-4">
-              <div className="bg-zinc-50 dark:bg-[#03045E] rounded-xl border border-zinc-200 dark:border-zinc-600 overflow-hidden shadow-lg">
-                <div className="px-3 py-2 border-b border-zinc-200 dark:border-zinc-600">
-                  <p className="text-[10px] sm:text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Select Model</p>
+            <div className="px-4 pt-3 max-w-3xl mx-auto">
+              <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-lg">
+                <div className="px-3.5 py-2 border-b border-zinc-200/80 dark:border-zinc-800">
+                  <p className="text-[11px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Select Model</p>
                 </div>
                 {AVAILABLE_MODELS.map((model) => {
                   const isSelected = selectedModel.id === model.id;
@@ -347,27 +358,27 @@ export default function AIAssistantView() {
                           handleLoadModel(model);
                         }
                       }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-3 px-3.5 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer"
                     >
                       <div className={`p-1.5 rounded-lg ${
                         isSelected
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500'
+                          ? 'bg-sky-600 text-white'
+                          : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'
                       }`}>
-                        {model.id.includes('0.5B') ? <Zap size={14} /> : <Cpu size={14} />}
+                        {model.id.includes('0.5B') ? <BoltIcon size={14} /> : <CpuIcon size={14} />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-white">{model.name}</span>
+                          <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">{model.name}</span>
                           {isActive && (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-medium">
+                            <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
                               Loaded
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400">{model.description} · {model.size}</span>
+                        <span className="text-[11px] text-zinc-500 dark:text-zinc-400">{model.description} · {model.size}</span>
                       </div>
-                      {isSelected && <Check size={14} className="text-blue-500 flex-shrink-0" />}
+                      {isSelected && <CheckIcon size={14} className="text-sky-600 dark:text-sky-400 shrink-0" />}
                     </button>
                   );
                 })}
@@ -377,22 +388,22 @@ export default function AIAssistantView() {
 
           {/* Input Bar */}
           <div className="p-3 sm:p-4">
-            <div className="flex items-end gap-2 sm:gap-3 max-w-4xl mx-auto">
+            <div className="flex items-center gap-2 sm:gap-3 max-w-3xl mx-auto">
               {/* Model Selector Button */}
               <button
                 onClick={() => setShowModelPicker(!showModelPicker)}
                 className={`
-                  flex-shrink-0 flex items-center gap-1.5 px-2.5 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-semibold transition-all cursor-pointer border
+                  shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border
                   ${showModelPicker
-                    ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-300 dark:border-blue-700 text-blue-600 dark:text-[#48CAE4]'
-                    : 'bg-zinc-100 dark:bg-white/5 border-zinc-200 dark:border-zinc-600 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-white/10'
+                    ? 'bg-sky-500/10 border-sky-500/30 text-sky-600 dark:text-sky-400'
+                    : 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200/80 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
                   }
                 `}
                 title="Switch model"
               >
-                {selectedModel.id.includes('0.5B') ? <Zap size={12} /> : <Cpu size={12} />}
+                {selectedModel.id.includes('0.5B') ? <BoltIcon size={14} /> : <CpuIcon size={14} />}
                 <span className="hidden sm:inline">{selectedModel.name}</span>
-                <ChevronDown size={10} className={`transition-transform ${showModelPicker ? 'rotate-180' : ''}`} />
+                <AltArrowDownIcon size={12} className={`transition-transform ${showModelPicker ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Text Input */}
@@ -404,11 +415,11 @@ export default function AIAssistantView() {
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
                   disabled={isLoading || !isModelReady}
-                  placeholder={isModelReady ? "Ask about your finances..." : "Load a model first..."}
+                  placeholder={isModelReady ? "Ask about your finances..." : "Load a model to chat..."}
                   className="
-                    w-full bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-zinc-600 rounded-2xl
-                    pl-4 pr-12 py-3 sm:py-3.5 text-[13px] sm:text-[15px] font-sans text-zinc-900 dark:text-white
-                    focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400 transition-all
+                    w-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/80 rounded-xl
+                    px-4 py-2.5 text-sm font-sans text-zinc-900 dark:text-zinc-100
+                    focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition-all
                     disabled:opacity-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500
                   "
                 />
@@ -419,24 +430,24 @@ export default function AIAssistantView() {
                 <button
                   onClick={() => { streamRef.current = false; setIsLoading(false); }}
                   className="
-                    flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all
-                    bg-red-500 hover:bg-red-600 text-white shadow-md cursor-pointer
+                    shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all
+                    bg-rose-600 hover:bg-rose-500 text-white shadow-xs cursor-pointer
                   "
                   title="Stop"
                 >
-                  <div className="w-3.5 h-3.5 bg-white rounded-sm" />
+                  <div className="w-3 h-3 bg-white rounded-xs" />
                 </button>
               ) : (
                 <button
                   onClick={handleSend}
                   disabled={!inputText.trim() || !isModelReady}
                   className="
-                    flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center transition-all
-                    disabled:opacity-30 disabled:cursor-not-allowed
-                    bg-blue-600 hover:bg-blue-700 text-white shadow-md
+                    shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all
+                    disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer
+                    bg-sky-600 hover:bg-sky-500 text-white shadow-xs
                   "
                 >
-                  <ArrowUp size={18} strokeWidth={2.5} />
+                  <ArrowUpIcon size={18} />
                 </button>
               )}
             </div>
