@@ -3,23 +3,18 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { 
+  LockIcon, 
+  LetterIcon, 
+  DangerTriangleIcon, 
+  CheckCircleIcon 
+} from '@solar-icons/react/linear';
 import { toast, Toaster } from 'sonner';
 import { authRepository } from '@/lib/repositories/AuthRepository';
-
-import { AppColors } from '@/lib/utils/colors';
-
-import { ShootingStars } from '@/components/ShootingStars';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { CustomTextField } from '@/components/CustomTextField';
-import { CustomText } from '@/components/CustomText';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { CustomButton } from '@/components/CustomButton';
 
-/**
- * LoginView component converted from Flutter.
- * Features staggered animations, shooting stars background, and Firebase integration.
- */
 export const LoginView: React.FC = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -55,21 +50,19 @@ export const LoginView: React.FC = () => {
     setError(null);
 
     try {
-      // Login using the repository with rememberMe flag
       await authRepository.login(email, password, rememberMe);
 
       toast.success('Login successful!', {
-        icon: <CheckCircle2 className="text-green-500" />,
+        icon: <CheckCircleIcon className="text-emerald-500" size={18} />,
       });
 
-      // Delay navigation slightly for toast visibility
       setTimeout(() => router.push('/dashboard'), 1500);
     } catch (err: any) {
       console.error(err);
       const errorMessage = err.message || 'Login failed. Please check your credentials.';
       setError(errorMessage);
       toast.error(errorMessage, {
-        icon: <AlertTriangle className="text-red-500" />,
+        icon: <DangerTriangleIcon className="text-red-500" size={18} />,
       });
     } finally {
       setIsLoading(false);
@@ -77,67 +70,51 @@ export const LoginView: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-6 overflow-hidden bg-soft-gradient">
-      <ShootingStars />
+    <div className="relative min-h-screen w-full flex items-center justify-center p-6 bg-background transition-colors duration-300">
       <Toaster position="top-center" richColors theme="system" />
 
       {/* Theme toggle in corner */}
       <div className="absolute top-6 right-6 z-20">
-        <ThemeToggle iconSize={28} className="bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20" />
+        <div className="p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/80">
+          <ThemeToggle iconSize={20} />
+        </div>
       </div>
 
       <main className="relative z-10 w-full max-w-md">
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Logo Section */}
           <AnimatedListItem index={0} className="flex justify-center">
-            <div
-              className="p-4 rounded-full shadow-2xl border-4 border-white/10 flex items-center justify-center"
-              style={{
-                backgroundColor: AppColors.primary,
-                boxShadow: `0 20px 25px -5px ${AppColors.primary}4D`,
-                width: '100px',
-                height: '100px'
-              }}
-            >
+            <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 flex items-center justify-center p-3 shadow-xs">
               <Image
                 src="/assets/WHITE-LOGO-PNG.png"
                 alt="Wenlance Logo"
-                width={60}
-                height={60}
-                className="object-contain"
+                width={40}
+                height={40}
+                className="object-contain dark:invert-0 invert"
               />
             </div>
           </AnimatedListItem>
 
           {/* Welcome Text */}
-          <AnimatedListItem index={1} className="text-center space-y-2">
-            <CustomText
-              label="Welcome Back"
-              fontWeight={700}
-              fontSize={32}
-              className="text-zinc-900 dark:text-white drop-shadow-md"
-            />
+          <AnimatedListItem index={1} className="text-center space-y-1">
+            <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Welcome Back
+            </h1>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              Sign in to manage your freelance operations
+            </p>
           </AnimatedListItem>
 
-          <div className="flex justify-center">
-            <CustomText
-              label="Sign in to continue to Wenlance"
-              fontWeight={400}
-              fontSize={16}
-              className="text-zinc-500 dark:text-zinc-400"
-            />
-          </div>
-
-          {/* Form Section */}
-          <div className="space-y-6 mt-12 bg-white/80 dark:bg-zinc-900/50 backdrop-blur-xl p-8 rounded-3xl border border-zinc-200 dark:border-white/10 shadow-2xl">
+          {/* Form Card */}
+          <div className="space-y-5 bg-white dark:bg-zinc-900 p-8 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs">
             <AnimatedListItem index={2}>
               <CustomTextField
                 label="Email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                prefixIcon={<Mail size={20} className="text-zinc-500" />}
-                className="bg-transparent border-zinc-200 dark:border-zinc-800 focus:border-blue-500"
+                prefixIcon={<LetterIcon size={18} className="text-zinc-400" />}
+                className="bg-transparent border-zinc-200 dark:border-zinc-800 focus:border-sky-500"
               />
             </AnimatedListItem>
 
@@ -148,35 +125,27 @@ export const LoginView: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 isPassword
-                prefixIcon={<Lock size={20} className="text-zinc-500" />}
-                className="bg-transparent border-zinc-200 dark:border-zinc-800 focus:border-blue-500"
+                prefixIcon={<LockIcon size={18} className="text-zinc-400" />}
+                className="bg-transparent border-zinc-200 dark:border-zinc-800 focus:border-sky-500"
               />
             </AnimatedListItem>
 
-            <AnimatedListItem index={4} className="flex items-center justify-between px-1">
+            <AnimatedListItem index={4} className="flex items-center justify-between px-0.5">
               <label className="flex items-center gap-2 cursor-pointer group">
-                <div className="relative flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="peer appearance-none w-5 h-5 rounded-md border-2 border-zinc-300 dark:border-zinc-700 checked:bg-blue-500 checked:border-blue-500 transition-all duration-200 cursor-pointer"
-                  />
-                  <CheckCircle2 
-                    size={14} 
-                    className="absolute left-[3px] top-[3px] text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" 
-                  />
-                </div>
-                <CustomText 
-                  label="Remember Me" 
-                  fontSize={14} 
-                  className="text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" 
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 text-sky-600 focus:ring-sky-500 cursor-pointer"
                 />
+                <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors">
+                  Remember Me
+                </span>
               </label>
 
               <button 
                 type="button"
-                className="text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors"
+                className="text-xs font-semibold text-sky-600 hover:text-sky-500 dark:text-sky-400 transition-colors"
                 onClick={() => toast.info('Password recovery coming soon')}
               >
                 Forgot Password?
@@ -184,9 +153,9 @@ export const LoginView: React.FC = () => {
             </AnimatedListItem>
 
             {error && (
-              <AnimatedListItem index={5} className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3">
-                <AlertTriangle size={18} className="text-red-500 shrink-0" />
-                <CustomText label={error} fontSize={12} className="text-red-400" />
+              <AnimatedListItem index={5} className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-2.5">
+                <DangerTriangleIcon size={16} className="text-red-500 shrink-0" />
+                <span className="text-xs text-red-500 font-medium">{error}</span>
               </AnimatedListItem>
             )}
 
@@ -194,14 +163,10 @@ export const LoginView: React.FC = () => {
               <button
                 disabled={isLoading}
                 onClick={() => handleLogin()}
-                className="w-full h-14 rounded-2xl text-white font-bold text-lg active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-3 shadow-xl"
-                style={{
-                  backgroundColor: AppColors.primary,
-                  boxShadow: `0 10px 15px -3px ${AppColors.primary}33`
-                }}
+                className="w-full h-11 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-sm active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-xs cursor-pointer"
               >
                 {isLoading ? (
-                  <div className="h-6 w-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   'Sign In'
                 )}
