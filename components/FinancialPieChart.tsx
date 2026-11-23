@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { CustomText } from './CustomText';
 
 export interface ExpenseModel {
   category: string;
@@ -68,11 +67,11 @@ export const FinancialPieChart: React.FC<FinancialPieChartProps> = ({ stats, exp
 
   if (totalOverall === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#023E8A]/20 backdrop-blur-xl">
-        <div className="w-12 h-12 mb-4 text-zinc-400">
+      <div className="flex flex-col items-center justify-center py-10 text-center">
+        <div className="w-10 h-10 mb-3 text-zinc-400 dark:text-zinc-600">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
         </div>
-        <CustomText label="No data available" fontWeight={600} fontSize={16} className="text-zinc-500" />
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">No data available</p>
       </div>
     );
   }
@@ -80,9 +79,8 @@ export const FinancialPieChart: React.FC<FinancialPieChartProps> = ({ stats, exp
   return (
     <div className="flex flex-col gap-6 w-full">
       {/* Financial Overview Chart */}
-      <div className="p-8 rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#023E8A]/20 backdrop-blur-xl shadow-sm">
-        <CustomText label="Financial Overview" fontWeight={700} fontSize={18} className="mb-1 block text-black dark:text-white" />
-        <CustomText label="Income vs Expenses Breakdown" fontWeight={400} fontSize={14} className="text-zinc-600 dark:text-white/60 mb-6 block" />
+      <div>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Income vs Expenses Breakdown</p>
 
         <div className="flex flex-col md:flex-row items-center gap-8">
           <div className="w-full h-48 md:w-1/2">
@@ -104,15 +102,17 @@ export const FinancialPieChart: React.FC<FinancialPieChartProps> = ({ stats, exp
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: any) => formatCurrency(value)}
+                  formatter={(value: number | string | ReadonlyArray<number | string> | undefined) => formatCurrency(Number(value))}
                   contentStyle={{
-                    backgroundColor: 'rgba(24, 24, 27, 0.8)',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    backdropFilter: 'blur(8px)',
-                    color: '#fff'
+                    backgroundColor: 'var(--card)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '10px',
+                    color: 'var(--card-foreground)',
+                    fontSize: '12px',
+                    padding: '8px 10px',
                   }}
-                  itemStyle={{ color: '#fff' }}
+                  itemStyle={{ color: 'var(--card-foreground)' }}
+                  labelStyle={{ color: 'var(--card-foreground)', fontWeight: 600 }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -121,16 +121,16 @@ export const FinancialPieChart: React.FC<FinancialPieChartProps> = ({ stats, exp
           <div className="flex flex-col gap-4 w-full md:w-1/2">
             <LegendItem label="Total Income" color="#10b981" value={totalIncome} formatCurrency={formatCurrency} />
             <LegendItem label="Total Expenses" color="#ef4444" value={totalExpenses} formatCurrency={formatCurrency} />
-            <LegendItem label="Net Income" color="#3b82f6" value={netIncome} formatCurrency={formatCurrency} />
+            <LegendItem label="Net Income" color="#0284c7" value={netIncome} formatCurrency={formatCurrency} />
           </div>
         </div>
       </div>
 
       {/* Expenses by Category Chart */}
       {totalExpensesByCategory > 0 && (
-        <div className="p-8 rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#023E8A]/20 backdrop-blur-xl shadow-sm">
-          <CustomText label="Expenses by Category" fontWeight={700} fontSize={18} className="mb-1 block text-black dark:text-white" />
-          <CustomText label="Breakdown of your spending" fontWeight={400} fontSize={14} className="text-zinc-600 dark:text-white/60 mb-6 block" />
+        <div>
+          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-1">Expenses by Category</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Breakdown of your spending</p>
 
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="w-full h-48 md:w-1/2">
@@ -154,15 +154,17 @@ export const FinancialPieChart: React.FC<FinancialPieChartProps> = ({ stats, exp
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: any) => formatCurrency(value)}
+                    formatter={(value: number | string | ReadonlyArray<number | string> | undefined) => formatCurrency(Number(value))}
                     contentStyle={{
-                      backgroundColor: 'rgba(24, 24, 27, 0.8)',
-                      borderRadius: '12px',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      backdropFilter: 'blur(8px)',
-                      color: '#fff'
+                      backgroundColor: 'var(--card)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '10px',
+                      color: 'var(--card-foreground)',
+                      fontSize: '12px',
+                      padding: '8px 10px',
                     }}
-                    itemStyle={{ color: '#fff' }}
+                    itemStyle={{ color: 'var(--card-foreground)' }}
+                    labelStyle={{ color: 'var(--card-foreground)', fontWeight: 600 }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -187,17 +189,29 @@ export const FinancialPieChart: React.FC<FinancialPieChartProps> = ({ stats, exp
   );
 };
 
-const LegendItem = ({ label, color, value, formatCurrency, percentage }: any) => (
+interface LegendItemProps {
+  label: string;
+  color: string;
+  value: number;
+  formatCurrency: (v: number) => string;
+  percentage?: number;
+}
+
+const LegendItem = ({ label, color, value, formatCurrency, percentage }: LegendItemProps) => (
   <div className="flex items-center gap-3 w-full">
-    <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: color }} />
+    <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: color }} />
     <div className="flex flex-col w-full min-w-0">
       <div className="flex items-center justify-between gap-2">
-        <CustomText label={label} fontWeight={500} fontSize={12} className="transition-colors duration-500" />
+        <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>
         {percentage !== undefined && (
-          <CustomText label={`${percentage.toFixed(1)}%`} fontWeight={600} fontSize={11} className="transition-colors duration-500 shrink-0" />
+          <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums shrink-0">
+            {percentage.toFixed(1)}%
+          </span>
         )}
       </div>
-      <CustomText label={formatCurrency(value)} fontWeight={700} fontSize={14} className="transition-colors duration-500" />
+      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
+        {formatCurrency(value)}
+      </span>
     </div>
   </div>
 );
