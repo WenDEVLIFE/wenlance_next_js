@@ -17,7 +17,7 @@ import {
 import { AnimatedListItem } from "@/components/AnimatedListItem";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PageTransition } from "@/components/PageTransition";
-import { enrichDashboardStats, calculateDashboardStats, getMonthlySalaryData } from "../../model/DashboardStats";
+import { enrichDashboardStats, calculateDashboardStats, getMonthlySalaryData, getPeakExpenseMonth } from "../../model/DashboardStats";
 import { dashboardRepository, DashboardData } from "@/lib/repositories/DashboardRepository";
 
 // Code-split heavy charting bundle to optimize First Input Delay and initial render
@@ -69,12 +69,26 @@ export default function DashboardPage() {
     return getMonthlySalaryData(data.sales);
   }, [data.sales]);
 
+  const peakExpenseMonth = useMemo(() => getPeakExpenseMonth(data.expenses), [data.expenses]);
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
       currency: 'PHP',
     }).format(amount);
   };
+
+  const formatCompactCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP',
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const peakExpenseFooter = peakExpenseMonth
+    ? `${formatCompactCurrency(peakExpenseMonth.amount)} · ${(peakExpenseMonth.share * 100).toFixed(1)}% of ${peakExpenseMonth.year} · ${peakExpenseMonth.count} ${peakExpenseMonth.count === 1 ? "record" : "records"}`
+    : "No expenses recorded";
 
   if (isLoading) {
     return (
@@ -187,11 +201,19 @@ export default function DashboardPage() {
               icon={<GraphUpIcon size={22} />}
               badgeColor="text-teal-600 dark:text-teal-400 bg-teal-500/10 border-teal-500/20"
             />
+            <StatCard
+              index={8}
+              title="Peak Expense Month"
+              value={peakExpenseMonth ? `${peakExpenseMonth.month} ${peakExpenseMonth.year}` : "—"}
+              icon={<CalendarIcon size={22} />}
+              badgeColor="text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20"
+              footer={peakExpenseFooter}
+            />
           </div>
 
           {/* Charts Section */}
           <div className="space-y-6 pb-12">
-            <AnimatedListItem index={8}>
+            <AnimatedListItem index={9}>
               <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 shadow-xs">
                 <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-4">
                   Financial Distribution
@@ -211,7 +233,7 @@ export default function DashboardPage() {
             </AnimatedListItem>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              <AnimatedListItem index={9}>
+              <AnimatedListItem index={10}>
                 <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 shadow-xs">
                   <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-4">
                     Salary Trend
@@ -223,7 +245,7 @@ export default function DashboardPage() {
                 </div>
               </AnimatedListItem>
 
-              <AnimatedListItem index={10}>
+              <AnimatedListItem index={11}>
                 <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 shadow-xs">
                   <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-4">
                     Monthly Overview
@@ -243,14 +265,16 @@ interface StatCardProps {
   index: number;
   title: string;
   value: string;
-  percentage: number;
+  percentage?: number;
+  footer?: React.ReactNode;
   icon: React.ReactNode;
   badgeColor: string;
 }
 
-function StatCard({ index, title, value, percentage, icon, badgeColor }: StatCardProps) {
-  const isIncrease = percentage > 0;
-  const isDecrease = percentage < 0;
+function StatCard({ index, title, value, percentage, footer, icon, badgeColor }: StatCardProps) {
+  const change = percentage ?? 0;
+  const isIncrease = change > 0;
+  const isDecrease = change < 0;
 
   return (
     <AnimatedListItem index={index}>
@@ -271,25 +295,31 @@ function StatCard({ index, title, value, percentage, icon, badgeColor }: StatCar
 
         {/* Change indicator */}
         <div className="flex items-center gap-1.5 pt-2 border-t border-zinc-100 dark:border-zinc-800/60 text-xs font-medium">
-          {isIncrease && (
-            <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 tabular-nums">
-              <GraphUpIcon size={14} />
-              +{percentage.toFixed(1)}%
-            </span>
+          {footer ? (
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 tabular-nums">{footer}</span>
+          ) : (
+            <>
+              {isIncrease && (
+                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 tabular-nums">
+                  <GraphUpIcon size={14} />
+                  +{change.toFixed(1)}%
+                </span>
+              )}
+              {isDecrease && (
+                <span className="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400 tabular-nums">
+                  <GraphDownIcon size={14} />
+                  {change.toFixed(1)}%
+                </span>
+              )}
+              {!isIncrease && !isDecrease && (
+                <span className="inline-flex items-center gap-1 text-zinc-400 dark:text-zinc-500 tabular-nums">
+                  <MinusIcon size={14} />
+                  0.0%
+                </span>
+              )}
+              <span className="text-zinc-400 dark:text-zinc-500 text-[11px] ml-1">vs previous period</span>
+            </>
           )}
-          {isDecrease && (
-            <span className="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400 tabular-nums">
-              <GraphDownIcon size={14} />
-              {percentage.toFixed(1)}%
-            </span>
-          )}
-          {!isIncrease && !isDecrease && (
-            <span className="inline-flex items-center gap-1 text-zinc-400 dark:text-zinc-500 tabular-nums">
-              <MinusIcon size={14} />
-              0.0%
-            </span>
-          )}
-          <span className="text-zinc-400 dark:text-zinc-500 text-[11px] ml-1">vs previous period</span>
         </div>
       </div>
     </AnimatedListItem>

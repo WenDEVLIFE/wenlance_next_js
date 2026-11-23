@@ -1,5 +1,6 @@
 import { DashboardData } from "@/lib/repositories/DashboardRepository";
 import { MonthlySaleModel } from "@/components/MonthlySalaryLineChart";
+import { ExpenseModel } from "./ExpenseModel";
 
 /**
  * DashboardStats interface converted from Swift.
@@ -123,7 +124,7 @@ export const calculateDashboardStats = (data: DashboardData): DashboardStats => 
 /**
  * Aggregates sales into monthly data for the current year.
  */
-export const getMonthlySalaryData = (sales: any[]): MonthlySaleModel[] => {
+export const getMonthlySalaryData = (sales: Array<{ amount: number; dateReceived?: Date; date?: Date }>): MonthlySaleModel[] => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -141,4 +142,83 @@ export const getMonthlySalaryData = (sales: any[]): MonthlySaleModel[] => {
     month,
     amount: monthlyTotals[index]
   }));
+};
+
+/**
+ * Monthly expense aggregate for one month of a specific year.
+ */
+export interface MonthlyExpenseModel {
+  month: string;
+  amount: number;
+  count: number;
+}
+
+/**
+ * The month with the highest total expenses inside a specific year.
+ */
+export interface PeakExpenseMonth {
+  month: string;
+  year: number;
+  amount: number;
+  count: number;
+  share: number;
+}
+
+const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Returns true only for a real, valid Date instance so bad records are skipped.
+ */
+const isValidExpenseDate = (date: Date): boolean => date instanceof Date && !isNaN(date.getTime());
+
+/**
+ * Aggregates expenses into 12 monthly totals (Jan..Dec) for the given year.
+ * Records with a missing or invalid date, or a different year, are skipped.
+ */
+export const getMonthlyExpenseData = (
+  expenses: ExpenseModel[],
+  year: number = new Date().getFullYear()
+): MonthlyExpenseModel[] => {
+  const monthlyTotals = new Array<number>(12).fill(0);
+  const monthlyCounts = new Array<number>(12).fill(0);
+
+  expenses.forEach(expense => {
+    if (!isValidExpenseDate(expense.date)) return;
+    if (expense.date.getFullYear() !== year) return;
+
+    const monthIndex = expense.date.getMonth();
+    monthlyTotals[monthIndex] += expense.amount;
+    monthlyCounts[monthIndex] += 1;
+  });
+
+  return MONTH_LABELS.map((month, index) => ({
+    month,
+    amount: monthlyTotals[index],
+    count: monthlyCounts[index],
+  }));
+};
+
+/**
+ * Finds the month with the highest total expenses in the given year.
+ * Returns null when the year has no expenses. On an exact tie the earliest
+ * month wins, because only a strictly greater amount replaces the current peak.
+ */
+export const getPeakExpenseMonth = (
+  expenses: ExpenseModel[],
+  year: number = new Date().getFullYear()
+): PeakExpenseMonth | null => {
+  const monthlyData = getMonthlyExpenseData(expenses, year);
+  const yearTotal = monthlyData.reduce((sum, month) => sum + month.amount, 0);
+
+  if (yearTotal === 0) return null;
+
+  const peak = monthlyData.reduce((best, current) => current.amount > best.amount ? current : best, monthlyData[0]);
+
+  return {
+    month: peak.month,
+    year,
+    amount: peak.amount,
+    count: peak.count,
+    share: peak.amount / yearTotal,
+  };
 };
