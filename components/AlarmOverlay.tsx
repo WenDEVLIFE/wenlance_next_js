@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X } from 'lucide-react';
+import { BellIcon } from '@solar-icons/react/linear';
 import { notificationService } from '@/lib/services/NotificationService';
 import { TaskModel } from '@/app/model/TaskModel';
 
@@ -33,39 +33,40 @@ export default function AlarmOverlay() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-xs"
+            onClick={dismiss}
           />
 
           <motion.div
-            initial={{ scale: 0.7, opacity: 0 }}
+            initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.7, opacity: 0 }}
-            transition={{ type: 'spring', bounce: 0.3, duration: 0.5 }}
-            className="relative z-10 w-full max-w-sm bg-white dark:bg-[#023E8A] rounded-3xl shadow-2xl overflow-hidden"
+            exit={{ scale: 0.85, opacity: 0 }}
+            transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+            className="relative z-10 w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-xl overflow-hidden"
           >
-            <div className="flex flex-col items-center p-8 text-center">
+            <div className="flex flex-col items-center p-7 text-center">
               <motion.div
                 animate={{
-                  rotate: [0, 15, -15, 15, -15, 0],
-                  scale: [1, 1.2, 1, 1.2, 1],
+                  rotate: [0, 10, -10, 10, -10, 0],
+                  scale: [1, 1.1, 1, 1.1, 1],
                 }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                className="w-20 h-20 rounded-full bg-blue-500/10 flex items-center justify-center mb-6"
+                transition={{ repeat: Infinity, duration: 2 }}
+                className="w-16 h-16 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center mb-5"
               >
-                <Bell size={40} className="text-blue-600 dark:text-[#48CAE4]" />
+                <BellIcon size={32} className="text-sky-600 dark:text-sky-400" />
               </motion.div>
 
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-1">
                 Task Reminder
               </h2>
-              <p className="text-lg font-semibold text-blue-600 dark:text-[#48CAE4] mb-1">
+              <p className="text-base font-semibold text-sky-600 dark:text-sky-400 mb-1">
                 {activeTask.name}
               </p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-300">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 {activeTask.frequency === 'everyday'
-                  ? 'Daily task'
+                  ? 'Daily schedule'
                   : activeTask.frequency === 'one-time'
-                  ? 'One-time task'
+                  ? 'One-time alert'
                   : `Custom schedule`}
               </p>
             </div>
@@ -73,10 +74,9 @@ export default function AlarmOverlay() {
             <button
               onClick={dismiss}
               className="
-                w-full py-5 font-bold text-lg text-white
-                bg-blue-600 hover:bg-blue-700
-                dark:bg-[#0096C7] dark:hover:bg-[#0077B6]
-                transition-colors cursor-pointer
+                w-full py-3.5 font-semibold text-sm text-white
+                bg-sky-600 hover:bg-sky-500
+                transition-colors cursor-pointer border-t border-sky-700/20
               "
             >
               Dismiss
