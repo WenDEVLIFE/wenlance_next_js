@@ -17,7 +17,7 @@ import {
 import { AnimatedListItem } from "@/components/AnimatedListItem";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PageTransition } from "@/components/PageTransition";
-import { enrichDashboardStats, calculateDashboardStats, getMonthlySalaryData, getPeakExpenseMonth } from "../../model/DashboardStats";
+import { enrichDashboardStats, calculateDashboardStats, getMonthlySalaryData, getMonthlyExpenseData, getPeakExpenseMonth, summarizeExpenseTrend } from "../../model/DashboardStats";
 import { dashboardRepository, DashboardData } from "@/lib/repositories/DashboardRepository";
 
 // Code-split heavy charting bundle to optimize First Input Delay and initial render
@@ -39,6 +39,14 @@ const SalaryLineChart = dynamic(
 
 const MonthlySalaryLineChart = dynamic(
   () => import("@/components/MonthlySalaryLineChart").then((mod) => mod.MonthlySalaryLineChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-80 w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl animate-pulse" />,
+  }
+);
+
+const ExpenseTrendChart = dynamic(
+  () => import("@/components/ExpenseTrendChart").then((mod) => mod.ExpenseTrendChart),
   {
     ssr: false,
     loading: () => <div className="h-80 w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl animate-pulse" />,
@@ -70,6 +78,10 @@ export default function DashboardPage() {
   }, [data.sales]);
 
   const peakExpenseMonth = useMemo(() => getPeakExpenseMonth(data.expenses), [data.expenses]);
+
+  const monthlyExpenseData = useMemo(() => getMonthlyExpenseData(data.expenses), [data.expenses]);
+
+  const expenseSummary = useMemo(() => summarizeExpenseTrend(monthlyExpenseData), [monthlyExpenseData]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-PH', {
@@ -254,6 +266,15 @@ export default function DashboardPage() {
                 </div>
               </AnimatedListItem>
             </div>
+
+            <AnimatedListItem index={12}>
+              <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 shadow-xs">
+                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+                  Expense Trend
+                </h3>
+                <ExpenseTrendChart data={monthlyExpenseData} summary={expenseSummary} />
+              </div>
+            </AnimatedListItem>
           </div>
         </main>
       </div>

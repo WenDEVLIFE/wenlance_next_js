@@ -222,3 +222,46 @@ export const getPeakExpenseMonth = (
     share: peak.amount / yearTotal,
   };
 };
+
+/**
+ * Headline numbers for the monthly expense trend chart.
+ */
+export interface ExpenseTrendSummary {
+  yearTotal: number;
+  thisMonth: number;
+  thisMonthLabel: string;
+  peakMonth: string;
+  peakAmount: number;
+  monthlyAverage: number;
+}
+
+/**
+ * Builds the chart summary from a 12-month expense series. The average divides
+ * the year total by the months elapsed so far (currentMonthIndex + 1), so it
+ * reads as "spent per month" instead of projecting an unfinished year.
+ */
+export const summarizeExpenseTrend = (
+  monthly: MonthlyExpenseModel[],
+  currentMonthIndex: number = new Date().getMonth()
+): ExpenseTrendSummary => {
+  const yearTotal = monthly.reduce((sum, month) => sum + month.amount, 0);
+  const currentMonth = monthly[currentMonthIndex];
+  const monthsElapsed = currentMonthIndex + 1;
+
+  // Earliest month wins ties: only a strictly greater amount replaces the peak.
+  const peak = monthly.reduce<MonthlyExpenseModel | null>(
+    (best, month) => (best === null || month.amount > best.amount ? month : best),
+    null
+  );
+
+  const hasData = yearTotal > 0 && peak !== null;
+
+  return {
+    yearTotal,
+    thisMonth: currentMonth?.amount ?? 0,
+    thisMonthLabel: currentMonth?.month ?? '—',
+    peakMonth: hasData ? peak.month : '—',
+    peakAmount: hasData ? peak.amount : 0,
+    monthlyAverage: hasData && monthsElapsed > 0 ? yearTotal / monthsElapsed : 0,
+  };
+};

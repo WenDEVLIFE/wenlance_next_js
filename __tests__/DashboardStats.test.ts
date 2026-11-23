@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getMonthlyExpenseData, getPeakExpenseMonth } from '@/app/model/DashboardStats';
+import { getMonthlyExpenseData, getPeakExpenseMonth, summarizeExpenseTrend } from '@/app/model/DashboardStats';
 import type { ExpenseModel } from '@/app/model/ExpenseModel';
 
 function expense(amount: number, date: Date, title = 'Expense'): ExpenseModel {
@@ -130,6 +130,82 @@ describe('DashboardStats expenses', () => {
 
       expect(months[0].amount).toBe(100);
       expect(months.reduce((sum, m) => sum + m.count, 0)).toBe(1);
+    });
+  });
+
+  describe('summarizeExpenseTrend', () => {
+    it('should report the year total and the current month for a known index', () => {
+      const expenses = [
+        expense(1000, new Date(2026, 0, 15)),
+        expense(2000, new Date(2026, 2, 10)),
+        expense(500, new Date(2026, 2, 20)),
+      ];
+
+      const summary = summarizeExpenseTrend(getMonthlyExpenseData(expenses, year), 2);
+
+      expect(summary.yearTotal).toBe(3500);
+      expect(summary.thisMonth).toBe(2500);
+      expect(summary.thisMonthLabel).toBe('Mar');
+    });
+
+    it('should pick the highest month as the peak', () => {
+      const expenses = [
+        expense(500, new Date(2026, 0, 5)),
+        expense(4000, new Date(2026, 1, 5)),
+        expense(1000, new Date(2026, 3, 5)),
+      ];
+
+      const summary = summarizeExpenseTrend(getMonthlyExpenseData(expenses, year), 3);
+
+      expect(summary.peakMonth).toBe('Feb');
+      expect(summary.peakAmount).toBe(4000);
+    });
+
+    it('should divide the year total by the months elapsed so far', () => {
+      const expenses = [
+        expense(1000, new Date(2026, 0, 15)),
+        expense(2000, new Date(2026, 2, 10)),
+        expense(500, new Date(2026, 2, 20)),
+      ];
+
+      const summary = summarizeExpenseTrend(getMonthlyExpenseData(expenses, year), 2);
+
+      expect(summary.monthlyAverage).toBeCloseTo(3500 / 3, 10);
+    });
+
+    it('should return zeros and dashes for an empty series', () => {
+      const summary = summarizeExpenseTrend([]);
+
+      expect(summary).toEqual({
+        yearTotal: 0,
+        thisMonth: 0,
+        thisMonthLabel: '—',
+        peakMonth: '—',
+        peakAmount: 0,
+        monthlyAverage: 0,
+      });
+    });
+
+    it('should return zeros and dashes when the year has no expenses', () => {
+      const summary = summarizeExpenseTrend(getMonthlyExpenseData([], year), 2);
+
+      expect(summary.yearTotal).toBe(0);
+      expect(summary.peakMonth).toBe('—');
+      expect(summary.peakAmount).toBe(0);
+      expect(summary.monthlyAverage).toBe(0);
+    });
+
+    it('should keep the earliest month when totals tie', () => {
+      const expenses = [
+        expense(1000, new Date(2026, 3, 5)),
+        expense(1000, new Date(2026, 0, 5)),
+        expense(500, new Date(2026, 6, 5)),
+      ];
+
+      const summary = summarizeExpenseTrend(getMonthlyExpenseData(expenses, year), 6);
+
+      expect(summary.peakMonth).toBe('Jan');
+      expect(summary.peakAmount).toBe(1000);
     });
   });
 });
