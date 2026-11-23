@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "anti-ai-slop",
+  "owner": "laurentmaxhuni",
+  "repo": "agent-skills",
+  "path": "skills/anti-ai-slop",
+  "branch": "main",
+  "sha": "935e24a14c089fef1655674a2f62fceaca8c8b0d",
+  "source": "manual"
+}

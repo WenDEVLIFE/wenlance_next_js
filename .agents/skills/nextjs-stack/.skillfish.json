@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "nextjs-stack",
+  "owner": "fusengine",
+  "repo": "agents",
+  "path": "plugins/nextjs-expert/skills/nextjs-stack",
+  "branch": "main",
+  "sha": "73fe61e9497e367bf0ad8fa8f70179229ce6e729",
+  "source": "manual"
+}

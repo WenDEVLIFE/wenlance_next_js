@@ -1,0 +1,4 @@
+interface:
+  display_name: "Anti-AI Slop"
+  short_description: "Remove generic AI patterns from frontend design"
+  default_prompt: "Use $anti-ai-slop to remove generic AI-generated visual patterns from this frontend."
