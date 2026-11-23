@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, LucideIcon } from 'lucide-react';
+import { Sun2Icon, MoonStarsIcon } from '@solar-icons/react/linear';
 
 interface ThemeToggleProps {
-  lightIcon?: LucideIcon;
-  darkIcon?: LucideIcon;
+  lightIcon?: React.ElementType;
+  darkIcon?: React.ElementType;
   iconSize?: number;
   iconColor?: string;
   className?: string;
@@ -14,12 +14,12 @@ interface ThemeToggleProps {
 }
 
 /**
- * ThemeToggle component converted from Flutter.
+ * ThemeToggle component.
  * Manages dark/light mode with animated transitions and persistence.
  */
 export const ThemeToggle: React.FC<ThemeToggleProps> = ({
-  lightIcon: LightIcon = Sun,
-  darkIcon: DarkIcon = Moon,
+  lightIcon: LightIcon = Sun2Icon,
+  darkIcon: DarkIcon = MoonStarsIcon,
   iconSize = 24,
   iconColor,
   className = "",
@@ -28,7 +28,6 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
 
-  // Initialize theme from localStorage or system preference
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -64,7 +63,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   return (
     <button
       onClick={toggleTheme}
-      className={`relative p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${className}`}
+      className={`relative p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500/20 ${className}`}
       title={effectiveTooltip}
       aria-label={effectiveTooltip}
     >
@@ -78,9 +77,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
           className="flex items-center justify-center"
         >
           {isDark ? (
-            <LightIcon size={iconSize} color={iconColor} className="text-yellow-500" />
+            <LightIcon size={iconSize} color={iconColor} className="text-amber-400" />
           ) : (
-            <DarkIcon size={iconSize} color={iconColor} className="text-zinc-600" />
+            <DarkIcon size={iconSize} color={iconColor} className="text-zinc-600 dark:text-zinc-300" />
           )}
         </motion.div>
       </AnimatePresence>
