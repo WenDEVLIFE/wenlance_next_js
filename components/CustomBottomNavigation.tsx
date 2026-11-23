@@ -3,15 +3,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { 
-  LayoutDashboard, 
-  Wallet, 
-  Briefcase, 
-  Landmark, 
-  PiggyBank, 
-  CheckSquare, 
-  Bot, 
-  Power 
-} from 'lucide-react';
+  Widget2Icon,
+  Wallet2Icon,
+  SuitcaseLinesIcon,
+  BankIcon,
+  PiggyBankIcon,
+  CheckSquareIcon,
+  BotIcon,
+  PowerIcon,
+} from '@solar-icons/react/linear';
 
 interface NavItem {
   icon: React.ElementType;
@@ -26,14 +26,14 @@ interface CustomBottomNavigationProps {
 }
 
 const navItems: NavItem[] = [
-  { icon: LayoutDashboard, label: 'Dashboard', index: 0 },
-  { icon: Wallet, label: 'Expenses', index: 1 },
-  { icon: Briefcase, label: 'Projects', index: 2 },
-  { icon: Landmark, label: 'Salary', index: 3 },
-  { icon: PiggyBank, label: 'Savings', index: 4 },
-  { icon: CheckSquare, label: 'Tasks', index: 5 },
-  { icon: Bot, label: 'AI', index: 6 },
-  { icon: Power, label: 'Logout', index: 7 },
+  { icon: Widget2Icon, label: 'Dashboard', index: 0 },
+  { icon: Wallet2Icon, label: 'Expenses', index: 1 },
+  { icon: SuitcaseLinesIcon, label: 'Projects', index: 2 },
+  { icon: BankIcon, label: 'Salary', index: 3 },
+  { icon: PiggyBankIcon, label: 'Savings', index: 4 },
+  { icon: CheckSquareIcon, label: 'Tasks', index: 5 },
+  { icon: BotIcon, label: 'AI', index: 6 },
+  { icon: PowerIcon, label: 'Logout', index: 7 },
 ];
 
 export const CustomBottomNavigation: React.FC<CustomBottomNavigationProps> = ({
@@ -42,7 +42,7 @@ export const CustomBottomNavigation: React.FC<CustomBottomNavigationProps> = ({
   className = '',
 }) => {
   return (
-    <nav className={`fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-zinc-200 dark:border-zinc-800 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)] pb-safe ${className}`}>
+    <nav className={`fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800 shadow-[0_-2px_10px_rgba(0,0,0,0.03)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.2)] pb-safe ${className}`}>
       <div className="mx-auto flex h-20 items-center justify-around px-2 max-w-screen-md">
         {navItems.map((item) => {
           const isSelected = currentIndex === item.index;
@@ -55,11 +55,10 @@ export const CustomBottomNavigation: React.FC<CustomBottomNavigationProps> = ({
               className="group relative flex flex-1 flex-col items-center justify-center py-2 transition-all"
             >
               <div className="relative mb-1 flex items-center justify-center">
-                {/* Active Indicator Background */}
                 {isSelected && (
                   <motion.div
                     layoutId="nav-bg"
-                    className="absolute -inset-2 rounded-xl bg-blue-500/10 dark:bg-blue-500/20"
+                    className="absolute -inset-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800/80"
                     transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
                   />
                 )}
@@ -68,17 +67,17 @@ export const CustomBottomNavigation: React.FC<CustomBottomNavigationProps> = ({
                   size={24}
                   className={`relative z-10 transition-colors duration-200 ${
                     isSelected 
-                      ? 'text-blue-500' 
-                      : 'text-zinc-500 group-hover:text-zinc-700 dark:text-zinc-400 dark:group-hover:text-zinc-200'
+                      ? 'text-sky-600 dark:text-sky-400' 
+                      : 'text-zinc-500 group-hover:text-zinc-800 dark:text-zinc-400 dark:group-hover:text-zinc-200'
                   }`}
                 />
               </div>
               
               <span
-                className={`text-[10px] sm:text-xs font-semibold tracking-tight transition-colors duration-200 ${
+                className={`text-[11px] font-medium tracking-tight transition-colors duration-200 ${
                   isSelected 
-                    ? 'text-blue-500' 
-                    : 'text-zinc-500 group-hover:text-zinc-700 dark:text-zinc-400 dark:group-hover:text-zinc-200'
+                    ? 'text-sky-600 dark:text-sky-400 font-semibold' 
+                    : 'text-zinc-500 group-hover:text-zinc-800 dark:text-zinc-400 dark:group-hover:text-zinc-200'
                 }`}
               >
                 {item.label}
