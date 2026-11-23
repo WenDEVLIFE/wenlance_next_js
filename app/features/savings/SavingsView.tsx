@@ -1,7 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { PiggyBank, Plus, Minus, ArrowUp, ArrowDown, Trash2, Edit, AlertCircle } from 'lucide-react';
+import { 
+  PiggyBankIcon, 
+  AddIcon, 
+  MinusIcon, 
+  ArrowUpIcon, 
+  ArrowDownIcon, 
+  TrashBinTrashIcon, 
+  Pen2Icon, 
+  DangerCircleIcon 
+} from '@solar-icons/react/linear';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { AnimatedCard } from '@/components/AnimatedCard';
 import { AnimatedFAB } from '@/components/AnimatedFAB';
@@ -14,7 +23,6 @@ import { PageTransition } from '@/components/PageTransition';
 import { SavingsModel } from '@/app/model/SavingsModel';
 import { SavingsUtilizationModel } from '@/app/model/SavingsUtilizationModel';
 import { savingsRepository } from '@/lib/repositories/SavingsRepository';
-import AppColors from '@/lib/utils/colors';
 
 // ─── Formatting Helpers ─────────────────────────────────────
 function formatDate(date: Date): string {
@@ -35,36 +43,36 @@ function formatCurrency(amount: number): string {
 function getSavingsTypeColorClass(type: string, isText: boolean = false) {
   switch (type.toLowerCase()) {
     case 'emergency':
-      return isText ? 'text-red-500' : 'bg-red-500/10 border-red-500';
+      return isText ? 'text-rose-600 dark:text-rose-400' : 'bg-rose-500/10 border-rose-500/30';
     case 'vacation':
-      return isText ? 'text-emerald-500' : 'bg-emerald-500/10 border-emerald-500';
+      return isText ? 'text-emerald-600 dark:text-emerald-400' : 'bg-emerald-500/10 border-emerald-500/30';
     case 'investment':
-      return isText ? 'text-blue-500' : 'bg-blue-500/10 border-blue-500';
+      return isText ? 'text-sky-600 dark:text-sky-400' : 'bg-sky-500/10 border-sky-500/30';
     case 'education':
-      return isText ? 'text-violet-500' : 'bg-violet-500/10 border-violet-500';
+      return isText ? 'text-violet-600 dark:text-violet-400' : 'bg-violet-500/10 border-violet-500/30';
     case 'house':
-      return isText ? 'text-amber-500' : 'bg-amber-500/10 border-amber-500';
+      return isText ? 'text-amber-600 dark:text-amber-400' : 'bg-amber-500/10 border-amber-500/30';
     case 'car':
-      return isText ? 'text-indigo-500' : 'bg-indigo-500/10 border-indigo-500';
+      return isText ? 'text-indigo-600 dark:text-indigo-400' : 'bg-indigo-500/10 border-indigo-500/30';
     case 'retirement':
-      return isText ? 'text-pink-500' : 'bg-pink-500/10 border-pink-500';
+      return isText ? 'text-pink-600 dark:text-pink-400' : 'bg-pink-500/10 border-pink-500/30';
     default:
-      return isText ? 'text-zinc-500' : 'bg-zinc-500/10 border-zinc-500';
+      return isText ? 'text-zinc-600 dark:text-zinc-400' : 'bg-zinc-500/10 border-zinc-500/30';
   }
 }
 
 function getStorageTypeColorClass(type: string, isText: boolean = false) {
   switch (type.toLowerCase()) {
     case 'bank':
-      return isText ? 'text-blue-500' : 'bg-blue-500/10 border-blue-500';
+      return isText ? 'text-sky-600 dark:text-sky-400' : 'bg-sky-500/10 border-sky-500/30';
     case 'cash':
-      return isText ? 'text-emerald-500' : 'bg-emerald-500/10 border-emerald-500';
+      return isText ? 'text-emerald-600 dark:text-emerald-400' : 'bg-emerald-500/10 border-emerald-500/30';
     case 'digital wallet':
-      return isText ? 'text-violet-500' : 'bg-violet-500/10 border-violet-500';
+      return isText ? 'text-violet-600 dark:text-violet-400' : 'bg-violet-500/10 border-violet-500/30';
     case 'investment account':
-      return isText ? 'text-amber-500' : 'bg-amber-500/10 border-amber-500';
+      return isText ? 'text-amber-600 dark:text-amber-400' : 'bg-amber-500/10 border-amber-500/30';
     default:
-      return isText ? 'text-zinc-500' : 'bg-zinc-500/10 border-zinc-500';
+      return isText ? 'text-zinc-600 dark:text-zinc-400' : 'bg-zinc-500/10 border-zinc-500/30';
   }
 }
 
@@ -209,37 +217,39 @@ export default function SavingsView() {
   // ─── Rendering ───────────────────────────────────────────
   return (
     <PageTransition>
-      <div className="min-h-screen bg-zinc-50 dark:bg-[#03045E] transition-colors duration-300 relative">
-        <div className="flex flex-col h-full z-10 relative px-6 py-6 pb-24">
+      <div className="min-h-screen bg-background transition-colors duration-300 relative">
+        <div className="flex flex-col h-full z-10 relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
 
           {error ? (
             <div className="flex flex-col justify-center items-center h-[70vh]">
-              <AlertCircle size={80} className="text-red-500 mb-4" />
-              <h2 className="text-2xl font-bold text-red-500 mb-2">Error</h2>
-              <p className="text-zinc-600 dark:text-zinc-400 text-center max-w-sm">{error}</p>
+              <DangerCircleIcon size={64} className="text-red-500 mb-4" />
+              <h2 className="text-xl font-bold text-red-500 mb-2">Error</h2>
+              <p className="text-zinc-600 dark:text-zinc-400 text-center max-w-sm text-sm">{error}</p>
             </div>
           ) : isLoading && savings.length === 0 ? (
             <div className="flex justify-center items-center h-[70vh]">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              <div className="h-8 w-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : savings.length === 0 ? (
             <div className="flex flex-col justify-center items-center h-[70vh] text-center">
-              <PiggyBank size={80} className="text-zinc-300 dark:text-zinc-600 mb-4" />
-              <h2 className="text-2xl font-bold text-zinc-900 dark:text-white transition-colors mb-2">
+              <div className="bg-zinc-100 dark:bg-zinc-800/60 p-5 rounded-2xl mb-4 border border-zinc-200/60 dark:border-zinc-700/60">
+                <PiggyBankIcon size={48} className="text-zinc-400 dark:text-zinc-500" />
+              </div>
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-1">
                 No Savings Yet
               </h2>
-              <p className="text-zinc-500 dark:text-zinc-400 mb-8 max-w-sm">
-                Start saving and track your savings here
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-6 max-w-sm">
+                Create emergency funds, tax reserves, and investment buckets
               </p>
               <button
                 onClick={() => {
                   setSavingsToEdit(null);
                   setShowingAddSavingsDialog(true);
                 }}
-                className="flex items-center gap-2 bg-[#0096C7] hover:bg-[#0077B6] text-white px-6 py-3 rounded-full font-semibold transition-colors shadow-lg"
+                className="flex items-center gap-2 bg-sky-600 hover:bg-sky-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow-xs"
               >
-                <Plus size={20} />
-                Add Savings
+                <AddIcon size={18} />
+                <span>Add Savings Goal</span>
               </button>
             </div>
           ) : (
@@ -247,38 +257,32 @@ export default function SavingsView() {
               {/* Header */}
               <div className="flex justify-between items-start mb-8 relative">
                 <div className="flex flex-col">
-                  <h1 className="text-2xl font-bold text-zinc-900 dark:text-white transition-colors">
+                  <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
                     Savings Management
                   </h1>
-                  <span className="text-base font-semibold text-blue-600 dark:text-[#48CAE4] transition-colors mt-1">
-                    Total Savings: {formatCurrency(totalGlobalSavings)}
+                  <span className="text-sm font-semibold tabular-nums text-sky-600 dark:text-sky-400 mt-1">
+                    Total Reserves: {formatCurrency(totalGlobalSavings)}
                   </span>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-1 rounded-full shadow-lg border border-white/20 z-50">
-                    <ThemeToggle iconSize={22} />
+                <div className="flex items-center gap-3">
+                  <div className="p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/80">
+                    <ThemeToggle iconSize={20} />
                   </div>
-                  {/* Global Floating FAB */}
-                  {savings.length > 0 && (
-                    <div className="relative z-50">
-                      <AnimatedFAB
-                        backgroundColor={AppColors.primary}
-                        onPressed={() => {
-                          setSavingsToEdit(null);
-                          setShowingAddSavingsDialog(true);
-                        }}
-                        tooltip="Add Savings"
-                      >
-                        <Plus size={24} color="white" />
-                      </AnimatedFAB>
-                    </div>
-                  )}
-
+                  <AnimatedFAB
+                    onPressed={() => {
+                      setSavingsToEdit(null);
+                      setShowingAddSavingsDialog(true);
+                    }}
+                    className="!h-10 !w-10 !bg-sky-600 hover:!bg-sky-500 text-white"
+                    tooltip="Add Savings"
+                  >
+                    <AddIcon size={20} />
+                  </AnimatedFAB>
                 </div>
               </div>
+
               {/* Items List */}
               <div className="flex flex-col gap-4">
-
                 {savings.map((saving, index) => {
                   const currentBalance = calculateBalance(saving);
                   const totalDeposits = calculateTotalDeposits(saving.id!);
@@ -292,20 +296,20 @@ export default function SavingsView() {
 
                   return (
                     <AnimatedListItem key={saving.id} index={index}>
-                      <AnimatedCard className="bg-white dark:bg-[#023E8A] border border-zinc-100 dark:border-transparent">
+                      <AnimatedCard className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
                         <div className="p-5 flex flex-col w-full">
                           {/* Heading */}
-                          <div className="flex flex-col gap-3">
-                            <h3 className="text-xl font-bold text-zinc-900 dark:text-white transition-colors">
+                          <div className="flex flex-col gap-2.5">
+                            <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                               {saving.title}
                             </h3>
                             <div className="flex gap-2">
-                              <div className={`px-2.5 py-1 rounded-full border ${typeColorContainer}`}>
+                              <div className={`px-2.5 py-0.5 rounded-full border ${typeColorContainer}`}>
                                 <span className={`text-[11px] font-semibold ${typeColorText}`}>
                                   {saving.category}
                                 </span>
                               </div>
-                              <div className={`px-2.5 py-1 rounded-full border ${storageColorContainer}`}>
+                              <div className={`px-2.5 py-0.5 rounded-full border ${storageColorContainer}`}>
                                 <span className={`text-[11px] font-semibold ${storageColorText}`}>
                                   {saving.storageType}
                                 </span>
@@ -314,16 +318,16 @@ export default function SavingsView() {
                           </div>
 
                           {/* Balances Grid */}
-                          <div className="grid grid-cols-2 gap-4 mt-5">
+                          <div className="grid grid-cols-2 gap-4 mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800/60">
                             <div className="flex flex-col">
-                              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-300">Initial Amount</span>
-                              <span className="text-base font-bold text-zinc-900 dark:text-white mt-1">
+                              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Initial Target</span>
+                              <span className="text-base font-bold tabular-nums text-zinc-900 dark:text-zinc-100 mt-0.5">
                                 {formatCurrency(saving.amount)}
                               </span>
                             </div>
                             <div className="flex flex-col items-end">
-                              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-300">Current Balance</span>
-                              <span className="text-lg font-bold text-blue-600 dark:text-[#48CAE4]">
+                              <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Current Balance</span>
+                              <span className="text-lg font-bold tabular-nums text-sky-600 dark:text-sky-400 mt-0.5">
                                 {formatCurrency(currentBalance)}
                               </span>
                             </div>
@@ -331,19 +335,19 @@ export default function SavingsView() {
 
                           {/* Sums Grid */}
                           {(totalDeposits > 0 || totalUtilized > 0) && (
-                            <div className="flex gap-2 mt-4">
+                            <div className="flex gap-2 mt-3">
                               {totalDeposits > 0 && (
-                                <div className="flex-1 bg-emerald-500/10 p-3 rounded-xl flex flex-col">
-                                  <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-300">Total Deposits</span>
-                                  <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                                <div className="flex-1 bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl flex flex-col">
+                                  <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400">Total Deposits</span>
+                                  <span className="text-sm font-bold tabular-nums text-emerald-600 dark:text-emerald-400 mt-0.5">
                                     {formatCurrency(totalDeposits)}
                                   </span>
                                 </div>
                               )}
                               {totalUtilized > 0 && (
-                                <div className="flex-1 bg-red-500/10 p-3 rounded-xl flex flex-col">
-                                  <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-300">Total Utilized</span>
-                                  <span className="text-sm font-bold text-red-600 dark:text-red-400 mt-1">
+                                <div className="flex-1 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl flex flex-col">
+                                  <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400">Total Utilized</span>
+                                  <span className="text-sm font-bold tabular-nums text-rose-600 dark:text-rose-400 mt-0.5">
                                     {formatCurrency(totalUtilized)}
                                   </span>
                                 </div>
@@ -352,48 +356,49 @@ export default function SavingsView() {
                           )}
 
                           {saving.description && (
-                            <div className="mt-4 text-[13px] text-zinc-600 dark:text-zinc-300">
+                            <div className="mt-3 text-xs text-zinc-600 dark:text-zinc-400">
                               {saving.description}
                             </div>
                           )}
 
                           {/* Recent Transactions List */}
                           {recentUtilizations.length > 0 && (
-                            <div className="mt-5 border-t border-zinc-100 dark:border-white/10 pt-4">
-                              <h4 className="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Recent Transactions</h4>
-                              <div className="flex flex-col gap-3">
+                            <div className="mt-4 border-t border-zinc-100 dark:border-zinc-800/60 pt-3">
+                              <h4 className="text-[11px] font-semibold uppercase text-zinc-500 dark:text-zinc-400 mb-2.5">Recent Activity</h4>
+                              <div className="flex flex-col gap-2">
                                 {recentUtilizations.map(u => {
                                   const isDeposit = u.utilizationType === 'Deposit';
                                   return (
-                                    <div key={u.id} className="flex justify-between items-center group">
+                                    <div key={u.id} className="flex justify-between items-center group py-1">
                                       <div className="flex flex-col">
                                         <div className="flex items-center gap-1.5">
-                                          <span className="text-[13px] font-semibold text-zinc-900 dark:text-white">{u.utilizationType}</span>
+                                          <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">{u.utilizationType}</span>
                                           {isDeposit ? (
-                                            <ArrowDown size={12} className="text-emerald-500" />
+                                            <ArrowDownIcon size={12} className="text-emerald-500" />
                                           ) : (
-                                            <ArrowUp size={12} className="text-red-500" />
+                                            <ArrowUpIcon size={12} className="text-rose-500" />
                                           )}
                                         </div>
                                         {u.description && (
-                                          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 max-w-[150px] truncate">{u.description}</span>
+                                          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate max-w-[150px]">{u.description}</span>
                                         )}
                                       </div>
                                       <div className="flex items-center gap-3">
-                                        <div className="flex flex-col items-end">
-                                          <span className={`text-[13px] font-bold ${isDeposit ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
+                                        <div className="flex flex-col items-end tabular-nums">
+                                          <span className={`text-xs font-bold ${isDeposit ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                                             {isDeposit ? '+' : '-'}{formatCurrency(u.amount)}
                                           </span>
-                                          <span className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">{formatDate(u.date)}</span>
+                                          <span className="text-[10px] text-zinc-400">{formatDate(u.date)}</span>
                                         </div>
                                         <button
                                           onClick={() => {
                                             setUtilizationToDelete(u);
                                             setShowingDeleteUtilizationDialog(true);
                                           }}
-                                          className="p-1.5 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 opacity-60 hover:opacity-100 transition-all"
+                                          className="p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20 text-zinc-400 hover:text-rose-500 transition-colors"
+                                          title="Delete"
                                         >
-                                          <Trash2 size={14} />
+                                          <TrashBinTrashIcon size={14} />
                                         </button>
                                       </div>
                                     </div>
@@ -404,35 +409,35 @@ export default function SavingsView() {
                           )}
 
                           {/* Action Buttons Row */}
-                          <div className="flex justify-end flex-wrap gap-2 mt-5 border-t border-zinc-100 dark:border-white/10 pt-4">
+                          <div className="flex justify-end flex-wrap gap-2 mt-4 border-t border-zinc-100 dark:border-zinc-800/60 pt-3">
                             <button
                               onClick={() => {
                                 setActiveSavingsForDeposit(saving);
                                 setShowingAddDepositDialog(true);
                               }}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-white/10 transition-colors text-[12px] font-semibold"
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors text-xs font-semibold"
                             >
-                              <Plus size={14} />
-                              <span>Add Deposit</span>
+                              <AddIcon size={14} />
+                              <span>Deposit</span>
                             </button>
                             <button
                               onClick={() => {
                                 setActiveSavingsForUtilization({ saving, currentBalance });
                                 setShowingAddUtilizationDialog(true);
                               }}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-blue-600 dark:text-[#48CAE4] hover:bg-blue-50 dark:hover:bg-white/10 transition-colors text-[12px] font-semibold"
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/20 transition-colors text-xs font-semibold"
                             >
-                              <Minus size={14} />
-                              <span>Record Usage</span>
+                              <MinusIcon size={14} />
+                              <span>Withdraw</span>
                             </button>
                             <button
                               onClick={() => {
                                 setSavingsToEdit(saving);
                                 setShowingAddSavingsDialog(true);
                               }}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-blue-600 dark:text-[#48CAE4] hover:bg-blue-50 dark:hover:bg-white/10 transition-colors text-[12px] font-semibold"
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-xs font-semibold"
                             >
-                              <Edit size={14} />
+                              <Pen2Icon size={14} />
                               <span>Edit</span>
                             </button>
                             <button
@@ -440,9 +445,9 @@ export default function SavingsView() {
                                 setSavingsToDelete(saving);
                                 setShowingDeleteSavingsDialog(true);
                               }}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-white/10 transition-colors text-[12px] font-semibold"
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-xs font-semibold"
                             >
-                              <Trash2 size={14} />
+                              <TrashBinTrashIcon size={14} />
                               <span>Delete</span>
                             </button>
                           </div>
@@ -455,8 +460,6 @@ export default function SavingsView() {
             </>
           )}
         </div>
-
-
 
         {/* Modals */}
         <AddSavingsDialog
@@ -501,12 +504,12 @@ export default function SavingsView() {
             setSavingsToDelete(null);
           }}
         >
-          <div className="p-6 flex flex-col gap-5">
-            <h2 className="text-xl font-bold text-zinc-900 dark:text-white transition-colors">
-              Delete Savings
+          <div className="p-6 flex flex-col gap-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+            <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+              Delete Savings Goal
             </h2>
-            <p className="text-base text-zinc-600 dark:text-white/70 transition-colors">
-              Are you sure you want to delete "{savingsToDelete?.title}"? This will also delete all associated transactions. This action cannot be undone.
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Are you sure you want to delete &ldquo;{savingsToDelete?.title}&rdquo;? This will also delete all associated transactions. This action cannot be undone.
             </p>
             <div className="flex gap-3 pt-2">
               <button
@@ -515,13 +518,13 @@ export default function SavingsView() {
                   setShowingDeleteSavingsDialog(false);
                   setSavingsToDelete(null);
                 }}
-                className="flex-1 rounded-xl px-6 py-4 font-semibold text-base transition-colors cursor-pointer bg-zinc-100 dark:bg-[#0096C7] text-zinc-700 dark:text-white hover:bg-zinc-200 dark:hover:bg-[#0077B6]"
+                className="flex-1 rounded-xl px-4 py-2.5 font-semibold text-sm transition-colors cursor-pointer bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteSavings}
-                className="flex-1 rounded-xl px-6 py-4 font-semibold text-base transition-colors cursor-pointer bg-red-500 text-white hover:bg-red-600"
+                className="flex-1 rounded-xl px-4 py-2.5 font-semibold text-sm transition-colors cursor-pointer bg-red-600 hover:bg-red-500 text-white"
               >
                 Delete
               </button>
@@ -537,11 +540,11 @@ export default function SavingsView() {
             setUtilizationToDelete(null);
           }}
         >
-          <div className="p-6 flex flex-col gap-5">
-            <h2 className="text-xl font-bold text-zinc-900 dark:text-white transition-colors">
+          <div className="p-6 flex flex-col gap-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+            <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
               Delete Transaction
             </h2>
-            <p className="text-base text-zinc-600 dark:text-white/70 transition-colors">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Are you sure you want to delete this {utilizationToDelete?.utilizationType?.toLowerCase()} of {formatCurrency(utilizationToDelete?.amount || 0)}?
             </p>
             <div className="flex gap-3 pt-2">
@@ -551,13 +554,13 @@ export default function SavingsView() {
                   setShowingDeleteUtilizationDialog(false);
                   setUtilizationToDelete(null);
                 }}
-                className="flex-1 rounded-xl px-6 py-4 font-semibold text-base transition-colors cursor-pointer bg-zinc-100 dark:bg-[#0096C7] text-zinc-700 dark:text-white hover:bg-zinc-200 dark:hover:bg-[#0077B6]"
+                className="flex-1 rounded-xl px-4 py-2.5 font-semibold text-sm transition-colors cursor-pointer bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteUtilization}
-                className="flex-1 rounded-xl px-6 py-4 font-semibold text-base transition-colors cursor-pointer bg-red-500 text-white hover:bg-red-600"
+                className="flex-1 rounded-xl px-4 py-2.5 font-semibold text-sm transition-colors cursor-pointer bg-red-600 hover:bg-red-500 text-white"
               >
                 Delete
               </button>
