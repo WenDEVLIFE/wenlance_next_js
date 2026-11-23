@@ -32,8 +32,10 @@ const navItems: NavItem[] = [
   { icon: BankIcon, label: 'Salary', index: 3 },
   { icon: PiggyBankIcon, label: 'Savings', index: 4 },
   { icon: CheckSquareIcon, label: 'Tasks', index: 5 },
-  { icon: BotIcon, label: 'AI', index: 6 },
-  { icon: PowerIcon, label: 'Logout', index: 7 },
+  // Performance (index 6) has no mobile entry: the bar already fits 8 items and a
+  // 9th would break the layout, so /performance shows nothing highlighted on mobile.
+  { icon: BotIcon, label: 'AI', index: 7 },
+  { icon: PowerIcon, label: 'Logout', index: 8 },
 ];
 
 export const CustomBottomNavigation: React.FC<CustomBottomNavigationProps> = ({

@@ -6,6 +6,7 @@ import ProjectsView from '@/app/features/projects/ProjectsView';
 import SalaryView from '@/app/features/salary/SalaryView';
 import SavingsView from '@/app/features/savings/SavingsView';
 import TasksView from '@/app/features/tasks/TasksView';
+import PerformanceView from '@/app/features/performance/PerformanceView';
 
 // Code-split heavy WebLLM bundle so initial navigation stays fast
 const AIAssistantView = dynamic(() => import('@/app/features/ai/AIAssistantView'), {
@@ -24,6 +25,7 @@ const views: Record<string, React.ComponentType> = {
   salary: SalaryView,
   savings: SavingsView,
   tasks: TasksView,
+  performance: PerformanceView,
   ai: AIAssistantView,
 };
 

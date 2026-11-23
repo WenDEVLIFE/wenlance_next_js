@@ -9,6 +9,7 @@ import {
   BankIcon,
   PiggyBankIcon,
   CheckSquareIcon,
+  ChartSquareIcon,
   BotIcon,
   PowerIcon,
 } from '@solar-icons/react/linear';
@@ -33,8 +34,9 @@ const navItems: NavItem[] = [
   { icon: BankIcon, label: 'Salary', index: 3 },
   { icon: PiggyBankIcon, label: 'Savings', index: 4 },
   { icon: CheckSquareIcon, label: 'Tasks', index: 5 },
-  { icon: BotIcon, label: 'AI', index: 6 },
-  { icon: PowerIcon, label: 'Logout', index: 7 },
+  { icon: ChartSquareIcon, label: 'Performance', index: 6 },
+  { icon: BotIcon, label: 'AI', index: 7 },
+  { icon: PowerIcon, label: 'Logout', index: 8 },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({

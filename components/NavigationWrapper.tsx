@@ -22,7 +22,8 @@ const routes: Record<number, string> = {
   3: '/salary',
   4: '/savings',
   5: '/tasks',
-  6: '/ai',
+  6: '/performance',
+  7: '/ai',
 };
 
 function getIndexFromPathname(pathname: string): number {
@@ -105,7 +106,7 @@ export const NavigationWrapper: React.FC<NavigationWrapperProps> = ({ children }
   };
 
   const handleNavTap = (index: number) => {
-    if (index === 7) {
+    if (index === 8) {
       handleLogout();
       return;
     }
