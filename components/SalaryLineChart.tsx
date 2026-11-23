@@ -2,8 +2,6 @@
 
 import React, { useMemo } from 'react';
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -12,7 +10,6 @@ import {
   Area,
   AreaChart,
 } from 'recharts';
-import { CustomText } from './CustomText';
 
 export interface SaleModel {
   dateReceived: Date;
@@ -105,31 +102,22 @@ export const SalaryLineChart: React.FC<SalaryLineChartProps> = ({ sales }) => {
 
   if (chartData.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#023E8A]/20 backdrop-blur-xl">
-        <div className="w-12 h-12 mb-4 text-zinc-400">
+      <div className="flex flex-col items-center justify-center py-10 text-center">
+        <div className="w-10 h-10 mb-3 text-zinc-400 dark:text-zinc-600">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
         </div>
-        <CustomText label="No salary data available" fontWeight={600} fontSize={16} className="text-zinc-500" />
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">No salary data available</p>
       </div>
     );
   }
 
   return (
-    <div className="p-8 rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#023E8A]/20 backdrop-blur-xl shadow-sm w-full">
-      <div className="mb-6">
-        <CustomText label="Salary Projection by Year" fontWeight={700} fontSize={18} className="block mb-1 text-black dark:text-white" />
-        <CustomText label="Total income per year" fontWeight={400} fontSize={14} className="text-zinc-600 dark:text-white/60 block" />
-      </div>
+    <div className="w-full">
+      <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Total income per year</p>
 
       <div className="h-64 w-full mb-8">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-              </linearGradient>
-            </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888822" />
             <XAxis 
               dataKey="year" 
@@ -142,37 +130,38 @@ export const SalaryLineChart: React.FC<SalaryLineChartProps> = ({ sales }) => {
               axisLine={false} 
               tickLine={false} 
               tickFormatter={formatYAxis}
-              tick={{ fontSize: 11, fill: '#888' }}
+              tick={{ fontSize: 11, fill: '#71717a' }}
               width={60}
             />
             <Tooltip 
-              formatter={(value: any) => [formatCurrency(value), 'Amount']}
+              formatter={(value: number | string | ReadonlyArray<number | string> | undefined) => [formatCurrency(Number(value)), 'Amount']}
               contentStyle={{ 
-                backgroundColor: 'rgba(24, 24, 27, 0.8)',
-                borderRadius: '12px', 
-                border: '1px solid rgba(255,255,255,0.1)', 
-                backdropFilter: 'blur(8px)',
-                color: '#fff'
+                backgroundColor: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: '10px',
+                color: 'var(--card-foreground)',
+                fontSize: '12px',
+                padding: '8px 10px',
               }}
-              labelStyle={{ color: '#fff', fontWeight: 'bold', marginBottom: '4px' }}
-              itemStyle={{ color: '#60a5fa' }}
+              labelStyle={{ color: 'var(--card-foreground)', fontWeight: 600 }}
+              itemStyle={{ color: '#0284c7' }}
             />
             <Area 
               type="monotone" 
               dataKey="amount" 
-              stroke="#3b82f6" 
-              strokeWidth={3} 
-              fillOpacity={1} 
-              fill="url(#colorAmount)" 
-              dot={{ r: 4, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2 }}
-              activeDot={{ r: 6, strokeWidth: 0 }}
+              stroke="#0284c7" 
+              strokeWidth={2} 
+              fill="#0284c7" 
+              fillOpacity={0.08} 
+              dot={{ r: 2.5, fill: '#0284c7', stroke: 'var(--card)', strokeWidth: 2 }}
+              activeDot={{ r: 5, strokeWidth: 0 }}
               animationDuration={1500}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="flex items-center justify-around pt-4 border-t border-zinc-100 dark:border-zinc-800">
+      <div className="flex items-center justify-around pt-4 border-t border-zinc-200 dark:border-zinc-800">
         <StatItem label="Total Years" value={stats.totalYears.toString()} />
         <StatItem label="Highest Year" value={stats.highestYear} />
         <StatItem label="Total Earned" value={formatCurrency(stats.totalEarned)} isPrimary />
@@ -183,18 +172,10 @@ export const SalaryLineChart: React.FC<SalaryLineChartProps> = ({ sales }) => {
 
 const StatItem = ({ label, value, isPrimary }: { label: string; value: string; isPrimary?: boolean }) => (
   <div className="flex flex-col items-center">
-    <CustomText 
-      label={value} 
-      fontWeight={700} 
-      fontSize={16} 
-      className={isPrimary ? "text-blue-500" : "text-zinc-900 dark:text-zinc-100"} 
-    />
-    <CustomText 
-      label={label} 
-      fontWeight={400} 
-      fontSize={12} 
-      className="text-zinc-500 mt-1" 
-    />
+    <span className={`text-base font-semibold tabular-nums ${isPrimary ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
+      {value}
+    </span>
+    <span className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{label}</span>
   </div>
 );
 
