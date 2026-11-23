@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { Sidebar } from './Sidebar';
 import { CustomBottomNavigation } from './CustomBottomNavigation';
 import { usePathname, useRouter } from 'next/navigation';
+import { MotionConfig } from 'framer-motion';
 import { authRepository } from '@/lib/repositories/AuthRepository';
 import { auth } from '@/lib/utils/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -76,16 +77,22 @@ export const NavigationWrapper: React.FC<NavigationWrapperProps> = ({ children }
   // Show nothing or a loader while determining auth state on first load
   if (isInitializing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#03045E]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
+      <MotionConfig reducedMotion="user">
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600"></div>
+        </div>
+      </MotionConfig>
     );
   }
 
   // Hide navigation on login page
   const isLoginPage = pathname === '/login';
   if (isLoginPage) {
-    return <>{children}</>;
+    return (
+      <MotionConfig reducedMotion="user">
+        {children}
+      </MotionConfig>
+    );
   }
 
   const handleLogout = async () => {
@@ -110,28 +117,30 @@ export const NavigationWrapper: React.FC<NavigationWrapperProps> = ({ children }
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Desktop Sidebar */}
-      <Sidebar 
-        currentIndex={currentIndex} 
-        onTap={handleNavTap} 
-        className="hidden lg:flex" 
-      />
+    <MotionConfig reducedMotion="user">
+      <div className="min-h-screen flex">
+        {/* Desktop Sidebar */}
+        <Sidebar 
+          currentIndex={currentIndex} 
+          onTap={handleNavTap} 
+          className="hidden lg:flex" 
+        />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen lg:pl-72 pb-20 lg:pb-0 transition-all duration-500">
-        <main className="flex-1">
-          {children}
-        </main>
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-h-screen lg:pl-72 pb-20 lg:pb-0 transition-all duration-500">
+          <main className="flex-1">
+            {children}
+          </main>
+        </div>
+
+        {/* Mobile Bottom Navigation */}
+        <CustomBottomNavigation 
+          currentIndex={currentIndex} 
+          onTap={handleNavTap} 
+          className="lg:hidden" 
+        />
       </div>
-
-      {/* Mobile Bottom Navigation */}
-      <CustomBottomNavigation 
-        currentIndex={currentIndex} 
-        onTap={handleNavTap} 
-        className="lg:hidden" 
-      />
-    </div>
+    </MotionConfig>
   );
 };
 
