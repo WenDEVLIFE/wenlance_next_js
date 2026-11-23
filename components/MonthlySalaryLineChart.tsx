@@ -2,8 +2,6 @@
 
 import React, { useMemo } from 'react';
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -43,62 +41,57 @@ export const MonthlySalaryLineChart: React.FC<MonthlySalaryLineChartProps> = ({ 
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full h-[400px] bg-white dark:bg-[#023E8A]/20 backdrop-blur-xl p-8 rounded-[32px] border border-zinc-200 dark:border-white/10 shadow-sm"
+      className="w-full"
     >
-      <div className="mb-6">
-        <h3 className="text-lg font-bold transition-colors duration-500">Monthly Salary Distribution</h3>
-        <p className="text-sm transition-colors duration-500">Earnings breakdown per month</p>
+      <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Earnings breakdown per month</p>
+
+      <div className="h-[360px] w-full mb-6">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888822" />
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: '#71717a', fontSize: 12 }}
+              dy={10}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: '#71717a', fontSize: 11 }}
+              tickFormatter={(value) => `₱${(value / 1000).toFixed(0)}k`}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: '10px',
+                color: 'var(--card-foreground)',
+                fontSize: '12px',
+                padding: '8px 10px',
+              }}
+              itemStyle={{ color: '#0284c7' }}
+              labelStyle={{ color: 'var(--card-foreground)', fontWeight: 600 }}
+              formatter={(value: number | string | ReadonlyArray<number | string> | undefined) => [`₱${Number(value).toLocaleString()}`, 'Amount']}
+            />
+            <Area
+              type="monotone"
+              dataKey="amount"
+              stroke="#0284c7"
+              strokeWidth={2}
+              fill="#0284c7"
+              fillOpacity={0.08}
+              animationDuration={2000}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
 
-      <ResponsiveContainer width="100%" height="60%">
-        <AreaChart data={chartData}>
-          <defs>
-            <linearGradient id="monthGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#88888822" />
-          <XAxis
-            dataKey="month"
-            axisLine={false}
-            tickLine={false}
-            tick={{ fill: '#888', fontSize: 12 }}
-            dy={10}
-          />
-          <YAxis
-            axisLine={false}
-            tickLine={false}
-            tick={{ fill: '#888', fontSize: 12 }}
-            tickFormatter={(value) => `₱${(value / 1000).toFixed(0)}k`}
-          />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: 'rgba(24, 24, 27, 0.8)',
-              borderRadius: '12px',
-              border: '1px solid rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(8px)',
-              color: '#fff'
-            }}
-            itemStyle={{ color: '#60a5fa' }}
-            formatter={(value: any) => [`₱${Number(value).toLocaleString()}`, 'Amount']}
-          />
-          <Area
-            type="monotone"
-            dataKey="amount"
-            stroke="#3b82f6"
-            strokeWidth={3}
-            fillOpacity={1}
-            fill="url(#monthGradient)"
-            animationDuration={2000}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-
       {/* Summary Row */}
-      <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-white/10 grid grid-cols-3 gap-4 text-center">
+      <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 grid grid-cols-3 gap-4 text-center">
         <div>
-          <p className="text-xl font-bold text-primary dark:text-[#60a5fa]">
+          <p className="text-base font-semibold tabular-nums text-sky-600 dark:text-sky-400">
             {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 }).format(
               chartData[new Date().getMonth()]?.amount || 0
             )}
@@ -106,7 +99,7 @@ export const MonthlySalaryLineChart: React.FC<MonthlySalaryLineChartProps> = ({ 
           <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">This Month</p>
         </div>
         <div>
-          <p className="text-xl font-bold text-primary dark:text-[#60a5fa]">
+          <p className="text-base font-semibold tabular-nums text-sky-600 dark:text-sky-400">
             {chartData.some(d => d.amount > 0)
               ? chartData.reduce((prev, current) => (prev.amount > current.amount) ? prev : current).month
               : "N/A"}
@@ -114,12 +107,12 @@ export const MonthlySalaryLineChart: React.FC<MonthlySalaryLineChartProps> = ({ 
           <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Best Month</p>
         </div>
         <div>
-          <p className="text-xl font-bold text-primary dark:text-[#60a5fa]">
+          <p className="text-base font-semibold tabular-nums text-sky-600 dark:text-sky-400">
             {new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 }).format(
               chartData.reduce((acc, curr) => acc + curr.amount, 0) / (new Date().getMonth() + 1)
             )}
           </p>
-          <p className="text-xs text-zinc-300 dark:text-zinc-300 font-medium">Avg/Month</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Avg/Month</p>
         </div>
       </div>
     </motion.div>
