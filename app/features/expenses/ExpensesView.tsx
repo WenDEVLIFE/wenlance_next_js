@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Wallet, AlertTriangle } from 'lucide-react';
+import { 
+  AddIcon, 
+  Pen2Icon, 
+  TrashBinTrashIcon, 
+  Wallet2Icon, 
+  DangerTriangleIcon 
+} from '@solar-icons/react/linear';
 import { AnimatedListItem } from '@/components/AnimatedListItem';
 import { AnimatedCard } from '@/components/AnimatedCard';
 import { AnimatedFAB } from '@/components/AnimatedFAB';
@@ -10,7 +16,6 @@ import { AddExpenseDialog } from '@/components/AddExpenseDialog';
 import { CustomButton } from '@/components/CustomButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { PageTransition } from '@/components/PageTransition';
-import { AppColors } from '@/lib/utils/colors';
 import { ExpenseModel } from '@/app/model/ExpenseModel';
 import { expenseRepository } from '@/lib/repositories/ExpenseRepository';
 
@@ -39,26 +44,26 @@ interface ExpenseCardProps {
 
 function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
   return (
-    <AnimatedCard className="bg-white dark:bg-[#023E8A] border border-zinc-100 dark:border-transparent">
-      <div className="p-4 flex flex-col items-start w-full">
+    <AnimatedCard className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+      <div className="p-5 flex flex-col items-start w-full">
         {/* Title + Amount */}
         <div className="flex justify-between items-center w-full">
-          <span className="text-base font-semibold transition-colors">
+          <span className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
             {expense.title}
           </span>
-          <span className="text-base font-bold text-[#023E8A] dark:text-[#48CAE4]">
+          <span className="text-base font-bold tabular-nums text-sky-600 dark:text-sky-400">
             {formatCurrency(expense.amount)}
           </span>
         </div>
 
-        <div className="h-2" />
+        <div className="h-2.5" />
 
         {/* Category Badge + Date */}
         <div className="flex justify-between items-center w-full">
-          <span className="px-3 py-1 rounded-md text-xs font-medium bg-[#ADE8F4] dark:bg-[#0096C7] transition-colors">
+          <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60">
             {expense.category}
           </span>
-          <span className="text-xs text-zinc-400 transition-colors">
+          <span className="text-xs tabular-nums text-zinc-400 dark:text-zinc-500">
             {formatDate(expense.date)}
           </span>
         </div>
@@ -66,8 +71,8 @@ function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
         {/* Description */}
         {expense.description && (
           <>
-            <div className="h-2" />
-            <p className="text-sm text-zinc-500 dark:text-white/70">
+            <div className="h-2.5" />
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
               {expense.description}
             </p>
           </>
@@ -76,20 +81,20 @@ function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
         <div className="h-3" />
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 w-full">
+        <div className="flex justify-end gap-1.5 w-full pt-2 border-t border-zinc-100 dark:border-zinc-800/60">
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(); }}
-            className="p-1.5 text-[#023E8A] dark:text-[#48CAE4] hover:bg-zinc-100 dark:hover:bg-white/10 rounded-full transition-colors"
+            className="p-1.5 text-zinc-500 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
             title="Edit"
           >
-            <Pencil size={20} />
+            <Pen2Icon size={18} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(); }}
-            className="p-1.5 text-red-500 hover:bg-zinc-100 dark:hover:bg-white/10 rounded-full transition-colors"
+            className="p-1.5 text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
             title="Delete"
           >
-            <Trash2 size={20} />
+            <TrashBinTrashIcon size={18} />
           </button>
         </div>
       </div>
@@ -101,10 +106,10 @@ function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
 function EmptyExpensesView({ onAdd }: { onAdd: () => void }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-4 px-8 py-20 text-center">
-      <Wallet size={80} className="text-zinc-400 dark:text-zinc-600" />
-      <h2 className="text-2xl font-bold text-blue-900 dark:text-white">Expenses</h2>
-      <p className="text-base text-zinc-500 dark:text-zinc-400">Track your expenses here</p>
-      <div className="pt-4 w-full max-w-xs">
+      <Wallet2Icon size={64} className="text-zinc-300 dark:text-zinc-700" />
+      <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">No Expenses Recorded</h2>
+      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm">Track your daily and monthly freelance operations by recording new expenses.</p>
+      <div className="pt-2 w-full max-w-xs">
         <CustomButton label="Add Expense" onClick={onAdd} />
       </div>
     </div>
@@ -115,9 +120,9 @@ function EmptyExpensesView({ onAdd }: { onAdd: () => void }) {
 function ErrorView({ message }: { message: string }) {
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-4 px-8 py-20 text-center">
-      <AlertTriangle size={64} className="text-red-500" />
-      <h2 className="text-xl font-bold text-red-500">Error</h2>
-      <p className="text-base text-zinc-500 dark:text-zinc-400 max-w-md">{message}</p>
+      <DangerTriangleIcon size={56} className="text-red-500" />
+      <h2 className="text-xl font-bold text-red-500">Error Loading Expenses</h2>
+      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md">{message}</p>
     </div>
   );
 }
@@ -189,23 +194,27 @@ export default function ExpensesView() {
   // ── Render ──
   return (
     <PageTransition>
-      <div className="min-h-screen bg-soft-gradient dark:bg-zinc-950 transition-colors duration-500">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="min-h-screen bg-background transition-colors duration-300">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
-          <header className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold ttransition-colors duration-500">
-              Your Expenses
-            </h1>
-            <div className="flex items-center gap-2">
-              <div className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-1 rounded-full shadow-lg border border-white/20">
-                <ThemeToggle iconSize={22} />
+          <header className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+                Expenses
+              </h1>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                Log and monitor operational costs
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/80">
+                <ThemeToggle iconSize={20} />
               </div>
               <AnimatedFAB
                 onPressed={openAdd}
-                backgroundColor={AppColors.primary}
-                className="!h-11 !w-11"
+                className="!h-10 !w-10 !bg-sky-600 hover:!bg-sky-500 text-white"
               >
-                <Plus size={20} />
+                <AddIcon size={20} />
               </AnimatedFAB>
             </div>
           </header>
@@ -213,7 +222,7 @@ export default function ExpensesView() {
           {/* Content */}
           {isLoading && expenses.length === 0 ? (
             <div className="flex-1 flex items-center justify-center py-32">
-              <div className="h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <div className="h-8 w-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : errorMessage ? (
             <ErrorView message={errorMessage} />
@@ -253,32 +262,26 @@ export default function ExpensesView() {
             setExpenseToDelete(null);
           }}
         >
-          <div className="p-6 flex flex-col gap-5">
-            <h2 className="text-xl font-bold transition-colors">
+          <div className="p-6 flex flex-col gap-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+            <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
               Delete Expense
             </h2>
-            <p className="text-base transition-colors">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Are you sure you want to delete &ldquo;{expenseToDelete?.title}&rdquo;? This action cannot be undone.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-2">
               <button
                 onClick={() => {
                   setShowDeleteDialog(false);
                   setExpenseToDelete(null);
                 }}
-                className="
-                  flex-1 rounded-xl px-6 py-4 font-semibold text-base transition-colors cursor-pointer
-                  bg-[#0096C7] hover:bg-[#0077B6] text-white
-                "
+                className="flex-1 rounded-xl px-4 py-2.5 font-semibold text-sm transition-colors cursor-pointer bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="
-                  flex-1 rounded-xl px-6 py-4 font-semibold text-base transition-colors cursor-pointer
-                  bg-red-500 text-white hover:bg-red-600
-                "
+                className="flex-1 rounded-xl px-4 py-2.5 font-semibold text-sm transition-colors cursor-pointer bg-red-600 hover:bg-red-500 text-white"
               >
                 Delete
               </button>
