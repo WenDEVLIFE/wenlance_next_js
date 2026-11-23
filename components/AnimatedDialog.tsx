@@ -32,7 +32,7 @@ export const AnimatedDialog: React.FC<AnimatedDialogProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 bg-zinc-950/50"
           />
 
           {/* Dialog Content */}
@@ -44,7 +44,7 @@ export const AnimatedDialog: React.FC<AnimatedDialogProps> = ({
               duration: duration,
               ease: [0.215, 0.61, 0.355, 1], // easeOutCubic approximation
             }}
-            className={`relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white dark:bg-[#023E8A] transition-colors duration-300 shadow-2xl ${className}`}
+            className={`relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 transition-colors duration-300 shadow-2xl ${className}`}
           >
             {children}
           </motion.div>
