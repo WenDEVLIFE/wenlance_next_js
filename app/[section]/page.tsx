@@ -1,11 +1,20 @@
 import { notFound } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import DashboardView from '@/app/features/dashboard/DashboardView';
 import ExpensesView from '@/app/features/expenses/ExpensesView';
 import ProjectsView from '@/app/features/projects/ProjectsView';
 import SalaryView from '@/app/features/salary/SalaryView';
 import SavingsView from '@/app/features/savings/SavingsView';
-import AIAssistantView from '@/app/features/ai/AIAssistantView';
 import TasksView from '@/app/features/tasks/TasksView';
+
+// Code-split heavy WebLLM bundle so initial navigation stays fast
+const AIAssistantView = dynamic(() => import('@/app/features/ai/AIAssistantView'), {
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="h-8 w-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  ),
+});
 
 // Central route map — add new sections here
 const views: Record<string, React.ComponentType> = {

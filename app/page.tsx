@@ -19,8 +19,8 @@ export default function RootPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-[#03045E]">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="animate-spin rounded-full h-10 w-10 border-2 border-sky-600 border-t-transparent"></div>
     </div>
   );
 }
